@@ -4,11 +4,12 @@ from datetime import datetime
 from sqlalchemy import MetaData, ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy_serializer import SerializerMixin
+from werkzeug.utils import secure_filename
+from werkzeug.datastructures import FileStorage
 
 metadata = MetaData(naming_convention={
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
 })
-
 
 db = SQLAlchemy()
 
@@ -32,16 +33,16 @@ class Profile(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<Profile {self.id}>'
-    
-
 
 class Post(db.Model, SerializerMixin):
     __tablename__ = 'post_table'
 
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(500), nullable=False)
-    image_url = db.Column(db.String(200), nullable=True)
+    sticker = db.Column(db.String(200), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
+    name = db.Column(db.String(100), nullable=False)
+    profile_picture = db.Column(db.String(500), nullable=True)
 
     profile_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'))
     profile = db.relationship('Profile', back_populates='posts')
@@ -54,6 +55,10 @@ class Post(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<Post {self.id}>'
 
+    def save_uploaded_image(self, image_file):
+        filename = secure_filename(image_file.filename)
+        image_file.save(f'uploads/{filename}')
+        self.sticker = f'uploads/{filename}'
 
 class Comment(db.Model, SerializerMixin):
     __tablename__ = 'comment_table'
@@ -61,6 +66,8 @@ class Comment(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(300), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    name = db.Column(db.String(100), nullable=False)
+    profile_picture = db.Column(db.String(500), nullable=True)
 
     profile_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'))
     profile = db.relationship('Profile', back_populates='comments')
