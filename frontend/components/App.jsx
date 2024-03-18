@@ -14,19 +14,11 @@ function App() {
     const [creatingProfile, setCreatingProfile] = useState(false);
 
     useEffect(() => {
-      // fetch(`/api/check_session`).then((res) => {
-      //   console.log('checking session')
-      //     if (res.ok) {
-      //       console.log('session is ok')
-      //       res.json().then((user) => setProfile(user));
-      //     } else {
-      //       console.log('session is not ok')
-      //       setProfile(null);
-      //     }
-      // });
       checkSession();
     }, []);
+
     function checkSession() {
+      console.log('checking session')
       fetch(`/api/check_session`)
       .then((res) => {
         if (res.ok) {
