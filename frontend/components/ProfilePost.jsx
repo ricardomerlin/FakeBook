@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 function ProfilePost({ post, profile, fetchPosts }) {
     const [likes, setLikes] = useState(0);
-    const [showModal, setShowModal] = useState(false);
-    const [imageSize, setImageSize] = useState({});
+    // const [showModal, setShowModal] = useState(false);
     const [liked, setLiked] = useState(false);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
@@ -119,12 +118,12 @@ function ProfilePost({ post, profile, fetchPosts }) {
         })
     }
 
-    const handleImageClick = () => {
-        setShowModal(true);
-    };
-    const handleCloseModal = () => {
-        setShowModal(false);
-    };
+    // const handleImageClick = () => {
+    //     setShowModal(true);
+    // };
+    // const handleCloseModal = () => {
+    //     setShowModal(false);
+    // };
 
     const handleDeletePost = async () => {
         const response = await fetch(`/api/posts/${post.id}`, {
@@ -176,32 +175,31 @@ function ProfilePost({ post, profile, fetchPosts }) {
             <div className='profile-comment-and-image-container'>
                 <div className="profile-image-like-wrapper">
                     {post.sticker ? 
-                    <img className="profile-post-pic" src={stickerPath} alt="pic_post" onClick={handleImageClick} /> : null}
+                    <img className="profile-post-pic" src={stickerPath} alt="pic_post" /> : null}
                     {liked ? <button className='unlike-button' onClick={handleUnlike}><strong>{likes} {likes == 1 ? 'Like' : 'Likes'}</strong></button> : <button className='like-button' onClick={handleLike}>Like ♡</button>}
                     {liked ? <p>You liked this post.</p> : null}
                 </div>
                 <div className="profile-comments-container">
-                    {comments.map((comment, index) => (
-                        <div key={index} className="profile-comment">
-                            <p>{comment.content}</p>
-                            <h5>{comment.name} on {reformatCommentDate(comment)} at {reformatCommentTime(comment)}</h5> 
-                            <p>----------------------</p>
-                        </div>
-                    ))}
+                    {comments.length === 0 ? (
+                        <p>Be the first to comment on {post.name}'s post!</p>
+                    ) : (
+                        comments.map((comment, index) => (
+                            <div key={index} className="profile-comment">
+                                <p>{comment.content}</p>
+                                <h5>{comment.name} on {reformatCommentDate(comment)} at {reformatCommentTime(comment)}</h5> 
+                                <p>----------------------</p>
+                            </div>
+                        ))
+                    )}
                     <form onSubmit={handleNewCommentSubmit}>
                         <input type="text" value={newComment} onChange={handleNewCommentChange} placeholder="Write a comment..." />
                         <button type="submit">Post Comment</button>
                     </form>
                 </div>
             </div>
-            {showModal && (
-            <div className="modal">
-                <span className="close" onClick={handleCloseModal}>&times;</span>
-                <img className="modal-content" src={post.sticker} alt="pic_post" />
-            </div>
-            )}
         </div>
     );
+    
 }
 
 export default ProfilePost;
