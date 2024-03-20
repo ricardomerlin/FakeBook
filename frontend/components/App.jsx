@@ -17,6 +17,10 @@ function App() {
     const [comments, setComments] = useState([]);
     const [post, setPost] = useState(null);
 
+  console.log('profId',profId)
+  console.log('profile', profile)
+
+
     useEffect(() => {
       checkSession();
     }, []);
@@ -31,6 +35,8 @@ function App() {
           setProfile(null);
       }
   }
+
+  console.log(profile)
 
     const handlePostAndComments = (comments, post) => {
         setComments(comments)
@@ -99,6 +105,8 @@ function App() {
         setCreatingProfile(value);
     }
 
+    console.log(creatingProfile)
+
     const fetchComments = async () => {
       const response = await fetch(`/api/comments`);
       const data = await response.json();
@@ -115,7 +123,7 @@ function App() {
           <nav>
             <Link to="/profile">Profile</Link>
             <Link to="/feed">Feed</Link>
-            <Link to="/login" onClick={handleLogout}>Logout</Link>
+            <Link to="/login" onClick={handleLogout} checkCreatingProfile={checkCreatingProfile}>Logout</Link>
           </nav>
           <Routes>
             <Route path="/" element={<Feed profile={profile} comments={comments} allComments={allComments}/>} />
@@ -127,7 +135,7 @@ function App() {
         </>
       ) : (
         <>
-            {creatingProfile ? <CreateProfile profId={profId} checkCreatingProfile={checkCreatingProfile} onLogin={handleLogin}/> : <LoginForm onLogin={handleLogin} checkCreatingProfile={checkCreatingProfile}loginError={loginError}/> }
+            {creatingProfile ? <CreateProfile profId={profId} checkCreatingProfile={checkCreatingProfile} onLogin={handleLogin}/> : <LoginForm onLogin={handleLogin} checkCreatingProfile={checkCreatingProfile} loginError={loginError}/> }
         </>
       )}
     </Router>

@@ -10,7 +10,7 @@ function Feed({ profile, fetchComments, comments, allComments, handlePostAndComm
 
     useEffect(() => {
         fetchPosts();
-        // fetchComments();
+        document.body.style.overflow = 'auto';
     }, []);
 
     const fetchPosts = async () => {

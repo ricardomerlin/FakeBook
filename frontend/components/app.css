@@ -54,7 +54,7 @@ z-index: -1;
 
 .profile-container {
 width: 60%;
-margin: 10vh auto;
+margin: 5vh auto;
 border: 1px solid #ddd;
 background-color: #fff;
 border-radius: 20px;
@@ -143,10 +143,37 @@ align-items: center;
 position:relative;
 top: 0;
 right: 0;
+width: 100px;
+height: 25px;
+border-radius: 20px;
+background-color: red;
+}
+
+.delete-post-feed-button {
+position:relative;
+top: 0;
+right: 0;
 width: 25px;
 height: 25px;
 border-radius: 20px;
 background-color: red;
+}
+
+.delete-comment-button {
+position: relative;
+top: 0;
+right: 0;
+font-size: 0.5em;
+}
+
+.delete-comment-button:hover {
+text-decoration: underline;
+color: red;
+cursor: pointer;
+}
+
+.no-scroll {
+overflow: hidden;
 }
 
 .like-button {
@@ -255,6 +282,12 @@ opacity: 0.4;
 z-index: -1;
 }
 
+.link-to-profile:hover {
+text-decoration: underline;
+color: rgb(99, 99, 216);
+cursor: pointer;
+}
+
 .new-post-form {
 display: flex;
 flex-direction: column;
@@ -301,6 +334,7 @@ background-color: #0e5a8a;
 display: flex;
 justify-content: center;
 align-items: center;
+text-align: center;
 height: 100vh;
 flex-direction: column;
 position: relative;
@@ -372,6 +406,16 @@ background-color: #f6fdff;
 color: rgb(0, 0, 0);
 margin-top: 10px;
 cursor: pointer;
+}
+
+.signup-account-button {
+    color: rgb(64, 118, 232);
+    cursor: pointer;
+}
+
+.signup-account-button:hover {
+    text-decoration: underline;
+    color: rgb(41, 72, 131);
 }
 
 .full-page-background {
@@ -613,28 +657,43 @@ margin-right: 20px;
 }
 
 .profile-post-modal-image-comments {
-    display: flex;
-    flex-direction: column;
+display: flex;
+flex-direction: column;
 }
 
 .profile-image-like-wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-top: 10px;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+align-items: center;
+width: 100%;
+margin-top: 10px;
 }
 
 .profile-post-pic {
-    max-width: 150px;
-    max-height: 150px;
-    border-radius: 10px;
-    margin-bottom: 10px;
+max-width: 150px;
+max-height: 150px;
+border-radius: 10px;
+margin-bottom: 10px;
 }
 
 .profile-post-pic-modal {
-    
+width: 300px;
+border-radius: 10px;
+margin-bottom: 20px;
+}
+
+.profile-comments-container {
+height: 400px;
+overflow: auto;
+margin-top: 40px;
+}
+
+.profile-comment {
+border: 2px solid #2d2d2d;
+border-radius: 5px;
+margin-bottom: 10px;
+padding: 10px;
 }
 
 .comment {
@@ -671,4 +730,38 @@ padding: 10px 20px;
 margin-bottom: 0;
 border-top-left-radius: 15px;
 border-top-right-radius: 15px;
+}
+
+.close-post-modal {
+position: fixed;
+bottom:0;
+left: 50%;
+transform: translateX(-50%);
+cursor: pointer;
+background-color: rgb(86, 124, 196);
+padding: 10px 20px;
+margin-bottom: 0;
+border-top-left-radius: 15px;
+border-top-right-radius: 15px;
+}
+
+.delete-profile-post-button {
+display: flex;
+justify-content: center;
+align-items: center;
+margin-top: 40px;
+}
+
+.other-user-modal {
+position: fixed;
+z-index: 1;
+left: 0;
+top: 0;
+width: 100%;
+height: 100%;
+overflow: auto;
+background-color: rgba(255, 255, 255, 0.8);
+display: flex;
+align-items: center;
+justify-content: center;
 }

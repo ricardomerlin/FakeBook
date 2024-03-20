@@ -205,6 +205,18 @@ def delete_like(id):
         return jsonify({'message': 'Like deleted successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+    
+@app.delete('/api/comments/<int:id>')
+def delete_comment(id):
+    try:
+        comment = Comment.query.get(id)
+        if not comment:
+            return jsonify({'error': 'Comment not found'}), 404
+        db.session.delete(comment)
+        db.session.commit()
+        return jsonify({'message': 'Comment deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 @app.post('/api/login')
 def login():

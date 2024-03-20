@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
+import OtherUser from './OtherUser';
 
 function Post({ post, profile, allComments, fetchPosts, handlePostAndComments }) {
     const [likes, setLikes] = useState(0);
@@ -12,6 +13,7 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
     const [userLike, setUserLike] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isTop, setIsTop] = useState(true);
+    const [otherUserId, setOtherUserId] = useState(0);
 
     const navigate = useNavigate();
 
@@ -22,7 +24,6 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
         const checkScroll = () => {
             setIsTop(window.pageYOffset === 0);
         };
-
         window.addEventListener('scroll', checkScroll);
         return () => {
             window.removeEventListener('scroll', checkScroll);
@@ -46,35 +47,35 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
     };
     
     const fetchComments = async (allComments) => {
-        // const response = await fetch(`/api/comments`);
-        // const data = await response.json();
         const postComments = allComments.filter(comment => comment.post_id === post.id);
         setComments(postComments);
     };
 
     const handleLike = () => {
         fetchLikes();
-        fetch(`/api/likes`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                profile_id: profile.id,
-                post_id: post.id
+        if (userLike === null) {
+            fetch(`/api/likes`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    profile_id: profile.id,
+                    post_id: post.id
+                })
             })
-        })
-        .then((response) => response.json())
-        .then((data) => {
-            setLikes(likes + 1);
-            setLiked(true);
-            setUserLike(data);
-        })
+            .then((response) => response.json())
+            .then((data) => {
+                setLikes(likes + 1);
+                setLiked(true);
+                setUserLike(data);
+            })
+        }
     }
 
     const handleUnlike = () => {
         fetchLikes();
-        if (userLike.profile_id === profile.id) {
+        if (userLike && userLike.profile_id === profile.id) {
             fetch(`/api/likes/${userLike.id}`, {
                 method: 'DELETE',
             })
@@ -127,16 +128,13 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
         document.body.style.overflow = 'auto';
     };
 
-    const openCommentModal = (comment) => {
-        console.log('Opening comment modal...');
-        setSelectedComment(comment);
-        setCommentModalOpen(true);
+    const handleOpenOtherUser = (userId) => {
+        console.log('Opening other user...')
+        setOtherUserId(userId);
     };
 
-    const closeCommentModal = () => {
-        console.log('Closing comment modal...');
-        setSelectedComment(null);
-        setCommentModalOpen(false);
+    const handleCloseOtherUser = () => {
+        setOtherUserId(0);
     };
 
     const handleDeletePost = async () => {
@@ -179,8 +177,7 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
         <div className="post" onDoubleClick={liked ? handleUnlike : handleLike}>
             <div className="post-header">
                 {post.profile_picture ? <img className="profile-pic" src={post.profile_picture} alt="Profile" /> : null}
-                <h5>Posted by {post.name} on {reformatPostDate()} at {reformatPostTime()}</h5>
-                {deleteable ? <button className='delete-post-button' onClick={() => setShowDeleteModal(true)}>X</button> : null}            
+                <h5>Posted by <a className='link-to-profile' onClick={() => handleOpenOtherUser(post.profile_id)}>{post.name}</a> on {reformatPostDate()} at {reformatPostTime()}</h5>                {deleteable ? <button className='delete-post-feed-button' onClick={() => setShowDeleteModal(true)}>X</button> : null}            
             </div>
             <div className='content-header'>
                 <p>{post.content}</p>
@@ -215,6 +212,11 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
                 </div>
                 </>
             )}
+            <OtherUser
+                isOpen={otherUserId > 0}
+                onClose={handleCloseOtherUser}
+                otherUserId={otherUserId}
+            />
             <DeleteConfirmationModal
                 isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}

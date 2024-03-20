@@ -36,10 +36,10 @@ function Profile({ profile }) {
   <div>
     <div className='profile-background'></div>
     <div className="profile-container">
-      <h2 className="profile-title">{profile.name}</h2>
+      <h2 className="profile-title" style={{marginBottom:'5px'}}>{profile.name}</h2>
+      <h2 style={{textAlign:'center', marginTop: '0'}}className="profile-username">Username: {profile.username}</h2>
       <div className="profile-content">
         <img className="profile-avatar" src={profile.profile_picture} alt="user avatar" />
-        <p className="profile-username">Username: {profile.username}</p>
         <p className='profile-birthday'>Born on {reformatBirthday(profile.birthday)}</p>
         <p className="profile-email">Email Address: {profile.email}</p>
         <p className="profile-bio">{profile.description}</p>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal'
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 function ProfilePost({ post, profile, fetchPosts }) {
     const [likes, setLikes] = useState(0);
@@ -10,6 +11,7 @@ function ProfilePost({ post, profile, fetchPosts }) {
     const [deleteable, setDeleteable] = useState(false);
     const [profilePic, setProfilePic] = useState('');
     const [userLike, setUserLike] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     
     useEffect(() => {
         fetchLikes();
@@ -48,6 +50,7 @@ function ProfilePost({ post, profile, fetchPosts }) {
 
     function handleLike() {
         fetchLikes();
+
         fetch(`/api/likes`, {
             method: 'POST',
             headers: {
@@ -85,11 +88,13 @@ function ProfilePost({ post, profile, fetchPosts }) {
 
     const handleOpenModal = () => {
         setShowModal(true);
+        document.body.style.overflow = 'hidden';
     }
-
+    
     const handleCloseModal = () => {
         setShowModal(false);
-    }
+        document.body.style.overflow = 'auto';
+    }    
 
     const handleNewCommentChange = (event) => {
         setNewComment(event.target.value);
@@ -117,13 +122,6 @@ function ProfilePost({ post, profile, fetchPosts }) {
         })
     }
 
-    // const handleImageClick = () => {
-    //     setShowModal(true);
-    // };
-    // const handleCloseModal = () => {
-    //     setShowModal(false);
-    // };
-
     const handleDeletePost = async () => {
         const response = await fetch(`/api/posts/${post.id}`, {
             method: 'DELETE',
@@ -136,6 +134,20 @@ function ProfilePost({ post, profile, fetchPosts }) {
             console.error('Failed to delete post');
         }
     };
+
+    const handleDeleteComment = async (comment) => {
+        console.log(comment.id)
+        const commentId = comment.id;
+        const response = await fetch(`/api/comments/${commentId}`, {
+            method: 'DELETE',
+        });
+        if (response.ok) {
+            console.log('Comment deleted successfully');
+            fetchComments();
+        } else {
+            console.error('Failed to delete comment');
+        }
+    }
 
     const imageUrl = "http://localhost:5555/uploaded_images";
 
@@ -171,7 +183,6 @@ function ProfilePost({ post, profile, fetchPosts }) {
             <img className="profile-post-pic" src={stickerPath} alt="pic_post" onClick={handleOpenModal}/> : null}
             <Modal isOpen={showModal} onRequestClose={handleCloseModal}>
                 <div className="profile-post-header">
-                    {deleteable ? <button className='delete-post-button' onClick={handleDeletePost}>X</button> : null}            
                     <h5>You posted this on {reformatPostDate()} at {reformatPostTime()}</h5>
                 </div>
                 <div className='profile-post-modal-image-comments'>
@@ -182,23 +193,33 @@ function ProfilePost({ post, profile, fetchPosts }) {
                         {liked ? <p>You liked this post.</p> : null}
                     </div>
                     <div className="profile-comments-container">
+                        <h2>Comments</h2>
                         {comments.length === 0 ? (
-                            <p>Be the first to comment on {post.name}'s post!</p>
+                            <p>Be the first to comment on your post!</p>
                         ) : (
                             comments.map((comment, index) => (
                                 <div key={index} className="profile-comment">
                                     <p>{comment.content}</p>
-                                    <h5>{comment.name} on {reformatCommentDate(comment)} at {reformatCommentTime(comment)}</h5> 
-                                    <p>----------------------</p>
+                                    <h5>{comment.name} on {reformatCommentDate(comment)} at {reformatCommentTime(comment)}</h5>
+                                    <p className='delete-comment-button' onClick={() => handleDeleteComment(comment)}>Remove this comment</p>
                                 </div>
                             ))
                         )}
-                        <form onSubmit={handleNewCommentSubmit}>
-                            <input type="text" value={newComment} onChange={handleNewCommentChange} placeholder="Write a comment..." />
-                            <button type="submit">Post Comment</button>
+                        <form className='submit-comment-feed' onSubmit={handleNewCommentSubmit}>
+                            <input type="text" style={{width: '200px'}} value={newComment} onChange={handleNewCommentChange} placeholder="Add a comment..." />
+                            <button type="submit" style={{marginTop: '10px'}}>Publish</button>
                         </form>
                     </div>
+                    <div className='delete-profile-post-button'>
+                        {deleteable ? <button className='delete-post-button' onClick={() => setShowDeleteModal(true)}>Delete post</button> : null}            
+                    </div>
+                    <p className='close-post-modal' onClick={handleCloseModal}>Exit Post</p>
                 </div>
+                <DeleteConfirmationModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onDelete={handleDeletePost}
+                />
             </Modal>
         </div>
     );
