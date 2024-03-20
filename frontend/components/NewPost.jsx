@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 function NewPost({ onPostCreated, profile }) {
     const [content, setContent] = useState('');
     const [image, setImage] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
     const [remainingChars, setRemainingChars] = useState(50);
     
     const navigate = useNavigate();
@@ -47,6 +48,7 @@ function NewPost({ onPostCreated, profile }) {
 
     const handleImageChange = (event) => {
         setImage(event.target.files[0]);
+        setPreviewImage(URL.createObjectURL(event.target.files[0]));
     };
 
     const handleClose = () => {
@@ -54,22 +56,29 @@ function NewPost({ onPostCreated, profile }) {
     };
 
     return (
-            <div className="new-post-container">
-                <form onSubmit={handleSubmit} className="new-post-form" encType="multipart/form-data">
-                    <h2>Create new post</h2>
-                    Share your thoughts:
-                    <label>
-                        <textarea className="new-post-input" value={content} onChange={handleContentChange} required />
-                    </label>
-                    <p style={{paddingTop:'0'}}>Characters remaining: {remainingChars}</p>
-                    Attach your image:
-                    <label style={{display:'flex', alignItems:'center'}}>
-                        <input type="file" accept="image/*" onChange={handleImageChange} />
-                    </label>
-                    <button type="submit" className="new-post-button">Create Post</button>
-                    <button type="button" onClick={handleClose} className="close-button">Close</button>
-                </form>
-            </div>
+        <div className="new-post-container">
+            <form onSubmit={handleSubmit} className="new-post-form" encType="multipart/form-data">
+                <h2>Create new post</h2>
+                Share your thoughts:
+                <label>
+                    <textarea className="new-post-input" value={content} onChange={handleContentChange} required />
+                </label>
+                <p style={{paddingTop:'0'}}>Characters remaining: {remainingChars}</p>
+                Attach your image:
+                <label style={{display:'flex', alignItems:'center'}}>
+                    <input type="file" accept="image/*" onChange={handleImageChange} />
+                </label>
+                {previewImage ? (
+                    <img src={previewImage} alt="Preview" style={{width: '200px', marginTop: '20px'}} />
+                ) : (
+                    <div style={{width: '200px', height: '200px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '20px'}}>
+                        Preview image here!
+                    </div>
+                )}     
+                <button type="submit" className="new-post-button">POST</button>           
+                <button type="button" onClick={handleClose} className="close-button">Close Create Post</button>
+            </form>
+        </div>
     );
 }
     

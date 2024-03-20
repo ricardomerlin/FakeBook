@@ -29,7 +29,7 @@ class Profile(db.Model, SerializerMixin):
     comments = db.relationship('Comment', back_populates='profile', cascade='all, delete-orphan')
     likes = db.relationship('Like', back_populates='profile', cascade='all, delete-orphan')
 
-    serialize_rules = ['-posts.profile', '-comments.profile', '-likes.profile']
+    serialize_rules = ['-posts', '-comments', '-likes']
 
     def __repr__(self):
         return f'<Profile {self.id}>'
@@ -50,7 +50,7 @@ class Post(db.Model, SerializerMixin):
     comments = db.relationship('Comment', back_populates='post', cascade='all, delete-orphan')
     likes = db.relationship('Like', back_populates='post', cascade='all, delete-orphan')
 
-    serialize_rules = ['-profile.posts', '-comments.post', '-likes.post']
+    serialize_rules = ['-profile', '-comments', '-likes']
 
     def __repr__(self):
         return f'<Post {self.id}>'
@@ -75,7 +75,7 @@ class Comment(db.Model, SerializerMixin):
     post_id = db.Column(db.Integer, db.ForeignKey('post_table.id'))
     post = db.relationship('Post', back_populates='comments')
 
-    serialize_rules = ['-profile.comments', '-post.comments']
+    serialize_rules = ['-profile', '-post']
 
     def __repr__(self):
         return f'<Comment {self.id}>'
@@ -93,7 +93,7 @@ class Like(db.Model, SerializerMixin):
     post_id = db.Column(db.Integer, db.ForeignKey('post_table.id'))
     post = db.relationship('Post', back_populates='likes')
 
-    serialize_rules = ['-profile.likes', '-post.likes']
+    serialize_rules = ['-profile', '-post']
 
     def __repr__(self):
         return f'<Like {self.id}>'

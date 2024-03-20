@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react';
 import Post from './Post';
 import { useNavigate } from 'react-router-dom';
 
-function Feed({ profile }) {
+function Feed({ profile, fetchComments, comments, allComments, handlePostAndComments }) {
     const [posts, setPosts] = useState([]);
 
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchPosts();
+        // fetchComments();
     }, []);
 
     const fetchPosts = async () => {
@@ -37,11 +38,11 @@ function Feed({ profile }) {
                             <h2>Be the first to post some of your favorite images!</h2>
                             <p>Share your thoughts, ideas, and moments with the world.</p>
                             <img className='dog-image' src='https://static8.depositphotos.com/1252474/957/i/450/depositphotos_9578561-stock-photo-dog-on-black-background.jpg' alt="raccoon in sunglasses" />
-                            <p>Hit the 'New post' button whenever you are ready!</p>
+                            <p>Hit the 'New Post' button whenever you are ready!</p>
                         </div>
                     ) : (
                         posts.map(post => (
-                            <Post key={post.id} profile={profile} post={post} fetchPosts={fetchPosts}/>
+                            <Post key={post.id} profile={profile} post={post} allComments={allComments} fetchPosts={fetchPosts} handlePostAndComments={handlePostAndComments}/>
                         ))
                     )}
                 </div>

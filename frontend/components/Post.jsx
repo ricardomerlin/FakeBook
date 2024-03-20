@@ -1,53 +1,38 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 
-function Post({ post, profile, fetchPosts }) {
+function Post({ post, profile, allComments, fetchPosts, handlePostAndComments }) {
     const [likes, setLikes] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [liked, setLiked] = useState(false);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [deleteable, setDeleteable] = useState(false);
-    const [profilePic, setProfilePic] = useState('');
     const [userLike, setUserLike] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isTop, setIsTop] = useState(true);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchLikes();        
-        fetchComments();
-    }, []);
+        fetchComments(allComments);
 
-    // useEffect(() => {
-    //     fetchLikes();
-    //     fetchComments();
-    // }, [comments]);
-    
-    useEffect(() => {
-        fetchProfile();
-    }, [post.profile_id]);
+        const checkScroll = () => {
+            setIsTop(window.pageYOffset === 0);
+        };
+
+        window.addEventListener('scroll', checkScroll);
+        return () => {
+            window.removeEventListener('scroll', checkScroll);
+        };
+    }, []);
     
     useEffect(() => {
         setDeleteable(post.profile_id === profile.id);
     }, [post, profile]);
 
-    console.log('userLike:',userLike)
-    console.log('liked:',liked)
-    console.log('post:',post.profile_id)
-
-    const fetchProfile = async () => {
-        const response = await fetch(`/api/profiles/${post.profile_id}`);
-        const data = await response.json();
-        setProfilePic(data.profile_picture);
-    };
-
-    // function fetchProfile () {
-    //     fetch(`/api/profiles/${post.profile_id}`)
-    //     .then((res) => res.json())
-    //     .then((data) => {
-    //         setProfilePic(data.profile_picture);
-    //     });
-    // }
-    
     const fetchLikes = async () => {
         const response = await fetch(`/api/likes`);
         const data = await response.json();
@@ -59,55 +44,13 @@ function Post({ post, profile, fetchPosts }) {
             setUserLike(userLike);
         }
     };
-
-    // function fetchLikes () {
-    //     fetch(`/api/likes`)
-    //     .then((res) => res.json())
-    //     .then((data) => {
-    //         const profileLikes = data.filter(like => like.post_id === post.id);
-    //         setLikes(profileLikes.length);
-    //         const userLike = profileLikes.find(like => like.profile_id === profile.id);
-    //         if (userLike) {
-    //             setLiked(true);
-    //             setUserLike(userLike);
-    //         }
-    //     });
-    // }
     
-    const fetchComments = async () => {
-        const response = await fetch(`/api/comments`);
-        const data = await response.json();
-        const postComments = data.filter(comment => comment.post_id === post.id);
+    const fetchComments = async (allComments) => {
+        // const response = await fetch(`/api/comments`);
+        // const data = await response.json();
+        const postComments = allComments.filter(comment => comment.post_id === post.id);
         setComments(postComments);
     };
-
-    // function fetchComments () {
-    //     fetch(`/api/comments`)
-    //     .then((res) => res.json())
-    //     .then((data) => {
-    //         const postComments = data.filter(comment => comment.post_id === post.id);
-    //         setComments(postComments);
-    //     });
-    // }
-
-    // function handleLike() {
-    //     fetch(`/api/likes`, {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //             profile_id: post.profile_id,
-    //             post_id: post.id
-    //         })
-    //     })
-    //     .then((response) => response.json())
-    //     .then((data) => {
-    //         setLikes(prevLikes => prevLikes + 1);
-    //         setLiked(true);
-    //         setUserLike(data);
-    //     })
-    // }
 
     const handleLike = () => {
         fetchLikes();
@@ -128,27 +71,10 @@ function Post({ post, profile, fetchPosts }) {
             setUserLike(data);
         })
     }
-    
-    // function handleUnlike() {
-    //     if (userLike && userLike.profile_id === post.profile_id) {
-    //         fetch(`/api/likes/${userLike.id}`, {
-    //             method: 'DELETE',
-    //         })
-    //         .then((response) => response.json())
-    //         .then((data) => {
-    //             console.log('Unliked post');
-    //             setLikes(prevLikes => prevLikes - 1);
-    //             setLiked(false);
-    //             setUserLike(null);
-    //         })
-    //     } else {
-    //         console.log('You can only delete your own likes')
-    //     }
-    // }
 
     const handleUnlike = () => {
         fetchLikes();
-        if (liked && userLike.profile_id === post.profile_id) {
+        if (userLike.profile_id === profile.id) {
             fetch(`/api/likes/${userLike.id}`, {
                 method: 'DELETE',
             })
@@ -164,16 +90,15 @@ function Post({ post, profile, fetchPosts }) {
         }
     }
 
-
     const handleNewCommentChange = (event) => {
         console.log('New comment:', event.target.value);
         setNewComment(event.target.value);
     };
 
-    function handleNewCommentSubmit(event) {
-        console.log('Submitting new comment...');
+    const handleNewCommentSubmit = async (event) => {
         event.preventDefault();
-        fetch(`/api/comments`, {
+        console.log('Submitting new comment...');
+        const response = await fetch(`/api/comments`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -185,19 +110,33 @@ function Post({ post, profile, fetchPosts }) {
                 name: profile.name,
                 profile_picture: profile.profile_picture
             })
-        })
-        .then((response) => response.json())
-        .then((data) => {
+        });
+        if (response.ok) {
+            const data = await response.json();
             setComments([...comments, data]);
             setNewComment('');
-        })
-    }
+        }
+    };
 
     const handleImageClick = () => {
         setShowModal(true);
+        document.body.style.overflow = 'hidden';
     };
     const handleCloseModal = () => {
         setShowModal(false);
+        document.body.style.overflow = 'auto';
+    };
+
+    const openCommentModal = (comment) => {
+        console.log('Opening comment modal...');
+        setSelectedComment(comment);
+        setCommentModalOpen(true);
+    };
+
+    const closeCommentModal = () => {
+        console.log('Closing comment modal...');
+        setSelectedComment(null);
+        setCommentModalOpen(false);
     };
 
     const handleDeletePost = async () => {
@@ -231,54 +170,50 @@ function Post({ post, profile, fetchPosts }) {
         return dateObject.toLocaleTimeString(undefined, options);
     }
 
-    const reformatCommentDate = (comment) => {
-        const dateObject = new Date(comment.created_at);
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return dateObject.toLocaleDateString(undefined, options);
+    function openComments () {
+        handlePostAndComments(comments, post);
+        navigate('/extended-comments');
     }
-
-    const reformatCommentTime = (comment) => {
-        const dateObject = new Date(comment.created_at);
-        const options = { hour: 'numeric', minute: 'numeric', timeZone: 'America/New_York' };
-        return dateObject.toLocaleTimeString('en-US', options);
-    }
-
 
     return (
-        <div className="post">
+        <div className="post" onDoubleClick={liked ? handleUnlike : handleLike}>
             <div className="post-header">
                 {post.profile_picture ? <img className="profile-pic" src={post.profile_picture} alt="Profile" /> : null}
                 <h5>Posted by {post.name} on {reformatPostDate()} at {reformatPostTime()}</h5>
                 {deleteable ? <button className='delete-post-button' onClick={() => setShowDeleteModal(true)}>X</button> : null}            
             </div>
-            <p className='content-header'>{post.content}</p>
-            <p className='content-header'>⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺</p>
-            <div className='comment-and-image-container'>
-                <div className="comments-container">
-                    {comments.map((comment, index) => (
-                        <div key={index} className="comment">
-                            <h2>{comment.content}</h2>
-                            <p>{comment.name} on {reformatCommentDate(comment)} at {reformatCommentTime(comment)}</p>
-                            <p>⋆     ⋆     ⋆     ⋆     ⋆</p>
-                        </div>
-                    ))}
-                    <form onSubmit={handleNewCommentSubmit}>
-                        <input type="text" value={newComment} onChange={handleNewCommentChange} placeholder="Write a comment..." />
-                        <button type="submit">Submit</button>
-                    </form>
-                </div>
-                <div className="image-like-wrapper">
-                    {post.sticker ? 
-                    <img className="post-pic" src={stickerPath} alt="pic_post" onClick={handleImageClick} /> : null}
-                    {liked ? <button className='unlike-button' onClick={handleUnlike}><strong>{likes} {likes == 1 ? 'Like' : 'Likes'}</strong></button> : <button className='like-button' onClick={handleLike}>Like ♡</button>}
-                    {liked ? <p>You liked this post.</p> : null}
-                </div>
+            <div className='content-header'>
+                <p>{post.content}</p>
+            </div>
+            {post.sticker ? 
+            <img className="post-pic" src={stickerPath} alt="pic_post" onClick={handleImageClick} /> : null}
+            {liked ? <button className='unlike-button' onClick={handleUnlike}>♥ {likes} {likes == 1 ? 'Like' : 'Likes'}</button> : <button className='like-button' onClick={handleLike}>♡ {likes} {likes == 1 ? 'Like' : 'Likes'}</button>}
+            {liked ? <p>You liked this post.</p> : null}
+            <p style={{marginBottom: '0'}}><strong><u>Replies</u></strong></p>
+            {comments.length >= 4 ? <p style={{marginTop: '3px', cursor: 'pointer'}} onClick={openComments}>Click to view more comments...</p>: null}
+            <div className="comments-container">
+                {comments.length === 0 ? (
+                    <div style={{display: 'flex', flexDirection:'column', alignItems:'center'}}>
+                        <p>No comments yet</p>
+                    </div>
+                ) : (
+                    comments.slice(0, 3).map((comment, index) => (
+                            <p key={index} className='comment'><strong>{comment.name} </strong>{comment.content}</p>
+                    ))
+                )}
+                <form onSubmit={handleNewCommentSubmit} className='submit-comment-feed'>
+                    <input type="text" style={{width: '200px'}} value={newComment} onChange={handleNewCommentChange} placeholder={`Reply to ${post.name}...`} />
+                    <button type="submit" style={{marginTop: '10px'}}>Post</button>
+                </form>
             </div>
             {showModal && (
-            <div className="modal">
-                <span className="close" onClick={handleCloseModal}>&times;</span>
-                <img className="modal-content" src={post.sticker} alt="pic_post" />
-            </div>
+                <>
+                <div className="modal-overlay" onClick={handleCloseModal}></div>
+                <div className="modal">
+                    <span className="close" onClick={handleCloseModal}>X</span>
+                    <img className="modal-content" src={stickerPath} alt="pic_post" />
+                </div>
+                </>
             )}
             <DeleteConfirmationModal
                 isOpen={showDeleteModal}

@@ -11,7 +11,6 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
         profile_picture: '',
         description: ''
     });
-    const [image, setImage] = useState('');
 
     const navigate = useNavigate();
 
@@ -20,6 +19,7 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
     }
 
     const handleLoginSubmit = async () => {
+        checkCreatingProfile(false);
         onLogin(profile.username, profile.password);
         goToFeed();
     };
@@ -31,11 +31,17 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
         });
     };
 
-    console.log(image)
+    const cancelCreateProfile = () => {
+        checkCreatingProfile(false);
+    }
+
+    console.log(profile)
+    console.log(checkCreatingProfile)
 
     const submitNewProfile = async (event) => {
         event.preventDefault()
-        const response = await fetch('http://localhost:5555/api/profiles', {
+        console.log('submitting profile')
+        const response = await fetch('/api/profiles', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -52,7 +58,8 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
         });
         if (response.ok) {
             const data = await response.json();
-            handleLoginSubmit()
+            checkCreatingProfile(false);
+            handleLoginSubmit();
         } else {
             console.error('Failed to create profile');
         }
@@ -96,7 +103,7 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
                 <button type="submit">Create Profile</button>
             </div>
         </form>
-        <button className="back-button" onClick={checkCreatingProfile}>Back to Login</button>
+        <button className="back-button" onClick={cancelCreateProfile}>Back to Login</button>
         </div>
     </div>
     );
