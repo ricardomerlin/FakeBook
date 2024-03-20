@@ -5,6 +5,7 @@ import Feed from './Feed';
 import LoginForm from "./LoginForm"
 import CreateProfile from './CreateProfile';
 import NewPost from './NewPost';
+import ExtendedComments from './ExtendedComments';
 import './app.css';
 
 function App() {
@@ -12,21 +13,28 @@ function App() {
     const [profile, setProfile] = useState(null);
     const [loginError, setLoginError] = useState(false);
     const [creatingProfile, setCreatingProfile] = useState(false);
+    const [allComments, setAllComments] = useState([]);
+    const [comments, setComments] = useState([]);
+    const [post, setPost] = useState(null);
 
     useEffect(() => {
       checkSession();
     }, []);
 
-    function checkSession() {
-      console.log('checking session')
-      fetch(`/api/check_session`)
-      .then((res) => {
-        if (res.ok) {
-          res.json().then((user) => setProfile(user));
-        } else {
+    const checkSession = async () => {
+      const response = await fetch('/api/check_session');
+      if (response.ok) {
+          const data = await response.json();
+          setProfile(data);
+          fetchComments();
+      } else {
           setProfile(null);
-        }
-      })
+      }
+  }
+
+    const handlePostAndComments = (comments, post) => {
+        setComments(comments)
+        setPost(post)
     }
 
     console.log(profile)
@@ -62,6 +70,8 @@ function App() {
     }
     };
 
+    console.log(comments)
+
     const handleLogout = async () => {
       const response = await fetch('/api/logout', {
           method: 'POST',
@@ -72,7 +82,8 @@ function App() {
   
       if (response.ok) {
           setProfile(null);
-
+          setComments([]);
+          setPost(null);
       } else {
         const errorData = await response.json().catch(() => null); 
             console.log('Error:', errorData);
@@ -84,9 +95,17 @@ function App() {
         console.log(newPost)
     }
 
-    const checkCreatingProfile = async () => {
-        setCreatingProfile(!creatingProfile);
+    const checkCreatingProfile = async (value) => {
+        setCreatingProfile(value);
     }
+
+    const fetchComments = async () => {
+      const response = await fetch(`/api/comments`);
+      const data = await response.json();
+      setAllComments(data);
+  };
+
+    console.log('creating profile?:',creatingProfile)
 
 
   return (
@@ -99,10 +118,11 @@ function App() {
             <Link to="/login" onClick={handleLogout}>Logout</Link>
           </nav>
           <Routes>
-            <Route path="/" element={<Feed profile={profile}/>} />
+            <Route path="/" element={<Feed profile={profile} comments={comments} allComments={allComments}/>} />
             <Route path="/profile" element={<Profile profile={profile} />} />
-            <Route path="/feed" element={<Feed profile={profile}/>} />
+            <Route path="/feed" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} handlePostAndComments={handlePostAndComments}/>} />
             <Route path='/new-post' element={<NewPost profile={profile} onPostCreated={handlePostCreated}/>} />
+            <Route path='/extended-comments' element={<ExtendedComments profile={profile} comments={comments} post={post}/>} />
           </Routes>
         </>
       ) : (

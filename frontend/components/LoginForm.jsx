@@ -26,6 +26,10 @@ function LoginForm({ onLogin, loginError, checkCreatingProfile }) {
         setIsPasswordVisible(!isPasswordVisible);
     };
 
+    const goToCreateProfile = () => {
+        checkCreatingProfile(true);
+    }
+
     return (
         <div className="login-form-container">
             <h2>Welcome to FakeBook!</h2>
@@ -45,7 +49,7 @@ function LoginForm({ onLogin, loginError, checkCreatingProfile }) {
                 <button type="submit" className="login-button">Log in</button>
             </form>
             {loginError ? <p style={{color:'red'}}>Username or password do not match known account.</p> : null}
-            <h3>Don't have an account? <button onClick={checkCreatingProfile}>Sign up here</button></h3>
+            <h3>Don't have an account? <button onClick={goToCreateProfile}>Sign up here</button></h3>
         </div>
     );
 }
