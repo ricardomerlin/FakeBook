@@ -35,9 +35,6 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
         checkCreatingProfile(false);
     }
 
-    console.log(profile)
-    console.log(checkCreatingProfile)
-
     const submitNewProfile = async (event) => {
         event.preventDefault()
         console.log('submitting profile')

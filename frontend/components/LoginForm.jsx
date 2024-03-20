@@ -1,4 +1,3 @@
-// LoginForm.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './app.css';
@@ -49,7 +48,7 @@ function LoginForm({ onLogin, loginError, checkCreatingProfile }) {
                 <button type="submit" className="login-button">Log in</button>
             </form>
             {loginError ? <p style={{color:'red'}}>Username or password do not match known account.</p> : null}
-            <h3>Don't have an account? <button onClick={goToCreateProfile}>Sign up here</button></h3>
+            <h3>Don't have an account? <a className='signup-account-button' onClick={goToCreateProfile}>Sign up here!</a></h3>
         </div>
     );
 }
