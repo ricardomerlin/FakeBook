@@ -16,7 +16,7 @@ function Feed({ profile, fetchComments, comments, allComments, handlePostAndComm
     const fetchPosts = async () => {
         const response = await fetch('/api/posts');
         const data = await response.json();
-        const sortedPosts = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        const sortedPosts = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         setPosts(sortedPosts);
     };
 
