@@ -22,6 +22,7 @@ function App() {
 
 
     useEffect(() => {
+      fetchComments();
       checkSession();
     }, []);
 
