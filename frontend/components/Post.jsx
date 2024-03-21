@@ -152,8 +152,12 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
         }
     };
 
-    const imageUrl = "http://localhost:5555/uploaded_images";
+    const goProfile = () => {
+        navigate('/profile');
+    }
 
+    
+    const imageUrl = "http://localhost:5555/uploaded_images";
     const stickerPath = `${imageUrl}/${post.sticker}`
 
     const reformatPostDate = () => {
@@ -176,8 +180,9 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
     return (
         <div className="post" onDoubleClick={liked ? handleUnlike : handleLike}>
             <div className="post-header">
-                {post.profile_picture ? <img className="profile-pic" src={post.profile_picture} alt="Profile" /> : null}
-                <h5>Posted by <a className='link-to-profile' onClick={() => handleOpenOtherUser(post.profile_id)}>{post.name}</a> on {reformatPostDate()} at {reformatPostTime()}</h5>                {deleteable ? <button className='delete-post-feed-button' onClick={() => setShowDeleteModal(true)}>X</button> : null}            
+                {post.profile_picture ? <img className="profile-pic" src={post.profile_picture} alt="Profile" /> : <img className='profile-pic' src='https://st2.depositphotos.com/11742109/48212/v/450/depositphotos_482126926-stock-illustration-gender-neutral-profile-avatar-front.jpg' alt='default-pfp' />}
+                <h5>Posted by {post.profile_id == profile.id ? <a>you</a> : <a className='link-to-profile' onClick={() => handleOpenOtherUser(post.profile_id)}>{post.name}</a>} on {reformatPostDate()} at {reformatPostTime()}</h5>
+                {deleteable ? <button className='delete-post-feed-button' onClick={() => setShowDeleteModal(true)}>X</button> : null}            
             </div>
             <div className='content-header'>
                 <p>{post.content}</p>

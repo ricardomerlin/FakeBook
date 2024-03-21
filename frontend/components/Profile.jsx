@@ -37,13 +37,13 @@ function Profile({ profile }) {
     <div className='profile-background'></div>
     <div className="profile-container">
       <h2 className="profile-title" style={{marginBottom:'5px'}}>{profile.name}</h2>
-      <h2 style={{textAlign:'center', marginTop: '0'}}className="profile-username">Username: {profile.username}</h2>
+      <h2 style={{textAlign:'center', marginTop: '0'}}className="profile-username">{profile.username}</h2>
       <div className="profile-content">
-        <img className="profile-avatar" src={profile.profile_picture} alt="user avatar" />
+        { profile.profile_picture ? <img className="profile-avatar" src={profile.profile_picture} alt="user avatar" /> : <img className="profile-avatar" style={{backgroundColor: 'white'}} src='https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_640.png' alt="user avatar" />}
         <p className='profile-birthday'>Born on {reformatBirthday(profile.birthday)}</p>
         <p className="profile-email">Email Address: {profile.email}</p>
         <p className="profile-bio">{profile.description}</p>
-        <h3>Click on an image to view your post!</h3>
+        {posts.length == 0 ? null : <h3>Click on an image to view your post!</h3>}
         <div className='profile-posts-container'>
         {posts.length == 0 ?
           <div style={{display: 'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', marginTop: '20px', textAlign: 'center'}}>

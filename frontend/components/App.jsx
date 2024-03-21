@@ -26,6 +26,7 @@ function App() {
     }, []);
 
     const checkSession = async () => {
+      console.log('I am checking session')
       const response = await fetch('/api/check_session');
       if (response.ok) {
           const data = await response.json();
@@ -52,6 +53,8 @@ function App() {
         setProfile(data);
       });
     }, [profId]);
+
+    console.log('profile:',profile)
 
     const handleLogin = async (username, password) => {
         const response = await fetch('/api/login', {
@@ -115,6 +118,8 @@ function App() {
 
     console.log('creating profile?:',creatingProfile)
 
+
+    console.log(loginError)
 
   return (
     <Router>

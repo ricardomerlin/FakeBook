@@ -12,6 +12,8 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
         description: ''
     });
 
+    const [confirmPassword, setConfirmPassword] = useState('')
+
     const navigate = useNavigate();
 
     const goToFeed = () => {
@@ -31,13 +33,20 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
         });
     };
 
+    const handleConfirmPasswordChange = (event) => {
+        setConfirmPassword(event.target.value);
+    }
+
     const cancelCreateProfile = () => {
         checkCreatingProfile(false);
     }
 
     const submitNewProfile = async (event) => {
         event.preventDefault()
-        console.log('submitting profile')
+        if (profile.password !== confirmPassword) {
+            alert('Passwords do not match')
+            return;
+        }
         const response = await fetch('/api/profiles', {
             method: 'POST',
             headers: {
@@ -83,6 +92,10 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
             <label>
             Password:
             <input type="password" name="password" value={profile.password} onChange={handleChange} />
+            </label>
+            <label>
+            Confirm password:
+            <input type="password" name="confirm-password" value={confirmPassword} onChange={handleConfirmPasswordChange}/>
             </label>
             <label>
             Birthday:
