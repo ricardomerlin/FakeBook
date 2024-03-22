@@ -15,8 +15,8 @@ function Profile({ profile }) {
   const fetchPosts = async () => {
     const response = await fetch('/api/posts');
     const data = await response.json();
-    setPosts(data);
-    console.log(posts)
+    const sortedPosts = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    setPosts(sortedPosts);
   };
   
   if (!profile) {
