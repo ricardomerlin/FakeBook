@@ -2,16 +2,72 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
 from datetime import datetime
 from sqlalchemy import MetaData, ForeignKey
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy_serializer import SerializerMixin
 from werkzeug.utils import secure_filename
-from werkzeug.datastructures import FileStorage
 
 metadata = MetaData(naming_convention={
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
 })
 
+
 db = SQLAlchemy()
+
+
+class Friendship(db.Model, SerializerMixin):
+    __tablename__ = 'friendship_table'
+
+    id = db.Column(db.Integer, primary_key=True)
+    added_at = db.Column(db.DateTime, default=datetime.now)
+
+    profile_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    friend_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+
+    profile = db.relationship('Profile', foreign_keys=[profile_id], backref='friends')
+    friend = db.relationship('Profile', foreign_keys=[friend_id], backref='friend_of')
+
+    serialize_rules = ('-profile.friends', '-friend.friend_of')
+
+    def __repr__(self):
+        return f'<Friendship {self.id}>'
+
+class Conversation(db.Model, SerializerMixin):
+    __tablename__ = 'conversation_table'
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+    user1_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    user2_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+
+    user1 = db.relationship('Profile', foreign_keys=[user1_id], backref='user1_conversations')
+    user2 = db.relationship('Profile', foreign_keys=[user2_id], backref='user2_conversations')
+
+    messages = db.relationship('Message', back_populates='conversation', cascade='all, delete-orphan')
+
+    serialize_rules = ('-messages', 'user1', 'user2')
+
+    def __repr__(self):
+        return f'<Conversation {self.id}>'
+
+class Message(db.Model, SerializerMixin):
+    __tablename__ = 'message_table'
+
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String(300), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    sender_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    conversation_id = db.Column(db.Integer, db.ForeignKey('conversation_table.id'), nullable=False)
+
+    sender = db.relationship('Profile', foreign_keys=[sender_id], backref='sent_messages')
+    receiver = db.relationship('Profile', foreign_keys=[receiver_id], backref='received_messages')
+    conversation = db.relationship('Conversation', back_populates='messages')
+
+    serialize_rules = ('-sender.sent_messages', '-receiver.received_messages', '-conversation.messages')
+
+    def __repr__(self):
+        return f'<Message {self.id}>'
 
 class Profile(db.Model, SerializerMixin):
     __tablename__ = 'profile_table'
@@ -29,7 +85,7 @@ class Profile(db.Model, SerializerMixin):
     comments = db.relationship('Comment', back_populates='profile', cascade='all, delete-orphan')
     likes = db.relationship('Like', back_populates='profile', cascade='all, delete-orphan')
 
-    serialize_rules = ['-posts', '-comments', '-likes']
+    serialize_rules = ('-posts', '-comments', '-likes', '-friends', '-sent_messages', '-received_messages')
 
     def __repr__(self):
         return f'<Profile {self.id}>'
@@ -50,7 +106,7 @@ class Post(db.Model, SerializerMixin):
     comments = db.relationship('Comment', back_populates='post', cascade='all, delete-orphan')
     likes = db.relationship('Like', back_populates='post', cascade='all, delete-orphan')
 
-    serialize_rules = ['-profile', '-comments', '-likes']
+    serialize_rules = ('-profile', '-comments', '-likes')
 
     def __repr__(self):
         return f'<Post {self.id}>'
@@ -75,11 +131,10 @@ class Comment(db.Model, SerializerMixin):
     post_id = db.Column(db.Integer, db.ForeignKey('post_table.id'))
     post = db.relationship('Post', back_populates='comments')
 
-    serialize_rules = ['-profile', '-post']
+    serialize_rules = ('-profile', '-post')
 
     def __repr__(self):
         return f'<Comment {self.id}>'
-
 
 class Like(db.Model, SerializerMixin):
     __tablename__ = 'like_table'
@@ -93,44 +148,7 @@ class Like(db.Model, SerializerMixin):
     post_id = db.Column(db.Integer, db.ForeignKey('post_table.id'))
     post = db.relationship('Post', back_populates='likes')
 
-    serialize_rules = ['-profile', '-post']
+    serialize_rules = ('-profile', '-post')
 
     def __repr__(self):
         return f'<Like {self.id}>'
-    
-class Conversation(db.Model, SerializerMixin):
-    __tablename__ = 'conversation_table'
-
-    id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    user1_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'))
-    user1 = db.relationship('Profile', foreign_keys=[user1_id], backref='conversations1')
-
-    user2_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'))
-    user2 = db.relationship('Profile', foreign_keys=[user2_id], backref='conversations2')
-
-    messages = db.relationship('Message', back_populates='conversation_table', cascade='all, delete-orphan')
-
-    serialize_rules = ['-messages']
-
-    def __repr__(self):
-        return f'<Conversation {self.id}>'
-    
-class Message(db.Model, SerializerMixin):
-    __tablename__ = 'message_table'
-
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.String(300), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    profile_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'))
-    profile = db.relationship('Profile')
-
-    conversation_id = db.Column(db.Integer, db.ForeignKey('conversation_table.id'))
-    conversation = db.relationship('Conversation', back_populates='messages')
-
-    serialize_rules = ['-profile', '-conversation', '-like', '-profile', ]
-
-    def __repr__(self):
-        return f'<Message {self.id}>'

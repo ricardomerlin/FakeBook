@@ -84,6 +84,7 @@ def get_likes():
     likes = Like.query.all()
     return ([l.to_dict(rules = ['-post', '-profile']) for l in likes])
 
+
 @app.post('/api/profiles')
 def create_profile():
     try:
@@ -161,8 +162,6 @@ def create_post():
         }), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-
-
 
 
 @app.post('/api/comments')
