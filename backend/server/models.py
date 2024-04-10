@@ -18,6 +18,7 @@ class Friendship(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     added_at = db.Column(db.DateTime, default=datetime.now)
+    accepted = db.Column(db.Boolean, default=False)
 
     profile_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
     friend_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)

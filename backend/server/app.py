@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from models import db, Profile, Post, Comment, Like
+from models import db, Profile, Post, Comment, Like, Conversation, Message, Friendship
 from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
@@ -84,6 +84,20 @@ def get_likes():
     likes = Like.query.all()
     return ([l.to_dict(rules = ['-post', '-profile']) for l in likes])
 
+@app.get('/api/conversations')
+def get_conversations():
+    conversations = Conversation.query.all()
+    return jsonify([c.to_dict(rules = ['-messages']) for c in conversations])
+
+@app.get('/api/messages')
+def get_messages():
+    messages = Message.query.all()
+    return jsonify([m.to_dict() for m in messages])
+
+@app.get('/api/friends')
+def get_friends():
+    friendships = Friendship.query.all()
+    return jsonify([f.to_dict(rules = ['-profile', '-friend']) for f in friendships])
 
 @app.post('/api/profiles')
 def create_profile():
@@ -180,6 +194,49 @@ def create_comment():
         return jsonify(new_comment.to_dict(rules = ['-profile.comments', '-post.comments']))
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+    
+@app.post('/api/conversations')
+def create_conversation():
+    try:
+        data = request.get_json()
+        new_conversation = Conversation(
+            user1_id=data.get('user1_id'),
+            user2_id=data.get('user2_id')
+        )
+        db.session.add(new_conversation)
+        db.session.commit()
+        return jsonify(new_conversation.to_dict(rules = ['-messages'])), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+@app.post('/api/messages')
+def create_message():
+    try:
+        data = request.get_json()
+        new_message = Message(
+            content=data.get('content'),
+            conversation_id=data.get('conversation_id'),
+            sender_id=data.get('sender_id')
+        )
+        db.session.add(new_message)
+        db.session.commit()
+        return jsonify(new_message.to_dict()), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+@app.post('/api/friends')
+def create_friendship():
+    try:
+        data = request.get_json()
+        new_friendship = Friendship(
+            profile_id=data.get('profile_id'),
+            friend_id=data.get('friend_id')
+        )
+        db.session.add(new_friendship)
+        db.session.commit()
+        return jsonify(new_friendship.to_dict(rules = ['-profile.friends', '-friend.friends'])), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 @app.delete('/api/posts/<int:id>')
 def delete_post(id):
@@ -216,6 +273,27 @@ def delete_comment(id):
         return jsonify({'message': 'Comment deleted successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+
+@app.delete('/api/friends/<int:id>&<int:id2>')
+def delete_friendship(id, id2):
+    try:
+        friendship = Friendship.query.filter_by(profile_id=id, friend_id=id2).first()
+        if not friendship:
+            alternative_friendship = Friendship.query.filter_by(profile_id=id2, friend_id=id).first()
+            if not alternative_friendship:
+                return jsonify({'error': 'Friendship not found'}), 404
+        if friendship:
+            db.session.delete(friendship)
+        elif alternative_friendship:
+            db.session.delete(alternative_friendship)
+        db.session.commit()
+        return jsonify({'message': 'Friendship deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+
+
 
 @app.post('/api/login')
 def login():
