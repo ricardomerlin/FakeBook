@@ -28,12 +28,14 @@ function App() {
       console.log('I am checking session')
       const response = await fetch('/api/check_session');
       if (response.ok) {
+          console.log('session is good')
           const data = await response.json();
           console.log(data)
           console.log(data)
           setProfile(data);
           fetchComments();
       } else {
+          console.log('session is bad')
           setProfile(null);
       }
   }
@@ -117,7 +119,7 @@ function App() {
             <Link to="/login" onClick={handleLogout} checkCreatingProfile={checkCreatingProfile}>Logout</Link>
           </nav>
           <Routes>
-            <Route path="/" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments}/>} />
+            <Route path="/" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} handlePostAndComments={handlePostAndComments}/>} />
             <Route path="/profile" element={<Profile profile={profile} />} />
             <Route path="/feed" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} handlePostAndComments={handlePostAndComments}/>} />
             <Route path="/friends-list" element={<FriendsList profile={profile} />} />

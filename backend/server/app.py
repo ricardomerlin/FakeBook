@@ -8,6 +8,8 @@ from flask_bcrypt import Bcrypt
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 from datetime import datetime
+from base64 import b64encode
+
 import os
 
 load_dotenv()
@@ -17,9 +19,6 @@ app.secret_key = os.getenv('CLIENT_SECRET')
 CORS(app, origins=['http://localhost:5173'], supports_credentials=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-relative_path = os.path.relpath(os.path.dirname(__file__))
-app.config['UPLOAD_FOLDER'] = os.path.join(relative_path, 'uploaded_images')
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 bcrypt = Bcrypt(app)
 migrate = Migrate(app, db)
 
@@ -37,17 +36,12 @@ def home():
 @app.get('/api/check_session')
 def check_session():
     print('CHECKING SESSION')
-    user_id = session.get('user_id')
-    print('This is the userId:', user_id)
-    if user_id is None:
-        session.clear()
-        return {"message": "No user logged in"}, 401
-    profile = db.session.get(Profile, user_id)
-    print(f'check session {user_id}')
+    print('This is the userId:',session.get('user_id'))
+    profile = db.session.get(Profile, session.get('user_id'))
+    print(f'check session {session.get("user_id")}')
     if profile:
         return profile.to_dict(rules=['-password']), 200
     else:
-        session.clear()
         return {"message": "No user logged in"}, 401
 
 @app.get('/api/profiles')
@@ -107,19 +101,25 @@ def get_friends():
 @app.post('/api/profiles')
 def create_profile():
     try:
-        data = request.get_json()
-        birthday_str = data.get('birthday')
-        birthday = datetime.strptime(birthday_str, '%Y-%m-%d').date()
+        birthday = datetime.strptime(request.form.get('birthday'), '%Y-%m-%d').date()
 
+        profile_picture = request.files.get('profile_picture')
+
+        profile_picture_data = None
+        if profile_picture is not None:
+            profile_picture_data = b64encode(profile_picture.read()).decode('utf-8')
+
+        print('about to create profile')
         new_profile = Profile(
-            name=data.get('name'),
-            email=data.get('email'),
-            username=data.get('username'),
-            password=bcrypt.generate_password_hash(data['password']),
+            name=request.form.get('name'),
+            email=request.form.get('email'),
+            username=request.form.get('username'),
+            password=bcrypt.generate_password_hash(request.form.get('password')),
             birthday=birthday,
-            profile_picture=data.get('profile_picture'),
-            description=data.get('description')
+            profile_picture=profile_picture_data,
+            description=request.form.get('description')
         )
+        print('new_profile:', new_profile)
         db.session.add(new_profile)
         db.session.commit()
         return jsonify(new_profile.to_dict(rules = ['-likes.profile', '-posts.profile', '-comments.profile'])), 201
@@ -234,12 +234,26 @@ def create_friendship():
     try:
         data = request.get_json()
         new_friendship = Friendship(
-            profile_id=data.get('profile_id'),
-            friend_id=data.get('friend_id')
+            sender_name=data.get('sender_name'),
+            recipient_name=data.get('recipient_name'),
+            self_id=data.get('self_id'),
+            recipient_id=data.get('recipient_id')
         )
         db.session.add(new_friendship)
         db.session.commit()
         return jsonify(new_friendship.to_dict(rules = ['-profile.friends', '-friend.friends'])), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+@app.patch('/api/friends/<int:id>')
+def accept_friendship(id):
+    try:
+        friendship = Friendship.query.get(id)
+        if not friendship:
+            return jsonify({'error': 'Friendship not found'}), 404
+        friendship.accepted = True
+        db.session.commit()
+        return jsonify(friendship.to_dict(rules = ['-profile.friends', '-friend.friends'])), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
@@ -279,24 +293,29 @@ def delete_comment(id):
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-@app.delete('/api/friends/<int:id>&<int:id2>')
-def delete_friendship(id, id2):
+@app.delete('/api/friends/<int:self_id>/<int:recipient_id>')
+def delete_friendship_after_send(self_id, recipient_id):
     try:
-        friendship = Friendship.query.filter_by(profile_id=id, friend_id=id2).first()
+        friendship = Friendship.query.filter_by(self_id=self_id, recipient_id=recipient_id).first()
         if not friendship:
-            alternative_friendship = Friendship.query.filter_by(profile_id=id2, friend_id=id).first()
-            if not alternative_friendship:
-                return jsonify({'error': 'Friendship not found'}), 404
-        if friendship:
-            db.session.delete(friendship)
-        elif alternative_friendship:
-            db.session.delete(alternative_friendship)
+            return jsonify({'error': 'Friendship not found'}), 404
+        db.session.delete(friendship)
         db.session.commit()
         return jsonify({'message': 'Friendship deleted successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-
+@app.delete('/api/friends/<int:id>')
+def refuse_friendship(id):
+    try:
+        friendship = Friendship.query.get(id)
+        if not friendship:
+            return jsonify({'error': 'Friendship not found'}), 404
+        db.session.delete(friendship)
+        db.session.commit()
+        return jsonify({'message': 'Friendship deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 
 

@@ -754,11 +754,45 @@ justify-content: center;
 }
 
 .friends-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    background-color: blue;
-    margin: 50px;
+width: 80%;
+margin: 60px auto;
+padding: 20px;
+background-color: #f5f5f5;
+border-radius: 10px;
+box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.friend {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 10px;
+margin-bottom: 10px;
+background-color: #fff;
+border-radius: 5px;
+box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}
+
+.friend-request {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 10px;
+margin-bottom: 10px;
+background-color: #fff;
+border-radius: 5px;
+box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}
+
+.friends-list {
+display: flex;
+flex-direction: column;
+max-height: 400px;
+overflow-y: auto;
+}
+
+.friend-requests-container {
+margin-bottom: 20px;
 }
 
 .conversations-container {

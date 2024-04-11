@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 08279b470a06
+Revision ID: 8376072aa713
 Revises: 
-Create Date: 2024-04-10 02:49:32.831417
+Create Date: 2024-04-11 05:27:48.070713
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '08279b470a06'
+revision = '8376072aa713'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,7 +25,7 @@ def upgrade():
     sa.Column('username', sa.String(length=50), nullable=False),
     sa.Column('password', sa.String(length=100), nullable=False),
     sa.Column('birthday', sa.Date(), nullable=True),
-    sa.Column('profile_picture', sa.String(length=500), nullable=True),
+    sa.Column('profile_picture_data', sa.String(length=500), nullable=True),
     sa.Column('description', sa.String(length=400), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
@@ -34,20 +34,22 @@ def upgrade():
     op.create_table('conversation_table',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.Column('user1_id', sa.Integer(), nullable=False),
-    sa.Column('user2_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['user1_id'], ['profile_table.id'], ),
-    sa.ForeignKeyConstraint(['user2_id'], ['profile_table.id'], ),
+    sa.Column('self_id', sa.Integer(), nullable=False),
+    sa.Column('other_user_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['other_user_id'], ['profile_table.id'], ),
+    sa.ForeignKeyConstraint(['self_id'], ['profile_table.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('friendship_table',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('added_at', sa.DateTime(), nullable=True),
     sa.Column('accepted', sa.Boolean(), nullable=True),
-    sa.Column('profile_id', sa.Integer(), nullable=False),
-    sa.Column('friend_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['friend_id'], ['profile_table.id'], ),
-    sa.ForeignKeyConstraint(['profile_id'], ['profile_table.id'], ),
+    sa.Column('sender_name', sa.String(length=100), nullable=False),
+    sa.Column('recipient_name', sa.String(length=100), nullable=False),
+    sa.Column('self_id', sa.Integer(), nullable=False),
+    sa.Column('recipient_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['recipient_id'], ['profile_table.id'], ),
+    sa.ForeignKeyConstraint(['self_id'], ['profile_table.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('post_table',

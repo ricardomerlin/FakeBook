@@ -18,14 +18,16 @@ class Friendship(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     added_at = db.Column(db.DateTime, default=datetime.now)
     accepted = db.Column(db.Boolean, default=False)
+    sender_name = db.Column(db.String(100), nullable=False)
+    recipient_name = db.Column(db.String(100), nullable=False)
 
     self_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
-    requester_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
 
-    profile = db.relationship('Profile', foreign_keys=[self_id], backref='friends')
-    requester = db.relationship('Profile', foreign_keys=[requester_id], backref='friend_of')
+    sender = db.relationship('Profile', foreign_keys=[self_id], backref='friends')
+    recipient = db.relationship('Profile', foreign_keys=[recipient_id], backref='friend_of')
 
-    serialize_rules = ('-profile.friends', '-friend.friend_of')
+    serialize_rules = ('-sender', '-recipient')
 
     def __repr__(self):
         return f'<Friendship {self.id}>'
@@ -78,14 +80,14 @@ class Profile(db.Model, SerializerMixin):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     birthday = db.Column(db.Date, nullable=True)
-    profile_picture = db.Column(db.String(500), nullable=True)
+    profile_picture_data = db.Column(db.String(500), nullable=True)
     description = db.Column(db.String(400))
 
     posts = db.relationship('Post', back_populates='profile', cascade='all, delete-orphan')
     comments = db.relationship('Comment', back_populates='profile', cascade='all, delete-orphan')
     likes = db.relationship('Like', back_populates='profile', cascade='all, delete-orphan')
 
-    serialize_rules = ('-posts', '-comments', '-likes', '-friends', '-sent_messages', '-received_messages')
+    serialize_rules = ('-posts', '-comments', '-likes', '-sent_messages', '-received_messages')
 
     def __repr__(self):
         return f'<Profile {self.id}>'

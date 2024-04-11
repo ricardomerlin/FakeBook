@@ -2,15 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function CreateProfile({ checkCreatingProfile, onLogin }) {
-    const [profile, setProfile] = useState({
-        name: '',
-        email: '',
-        username: '',
-        password: '',
-        birthday: '',
-        profile_picture: '',
-        description: ''
-    });
+    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [birthday, setBirthday] = useState('');
+    const [profile_picture, setProfilePicture] = useState(null);
+    const [description, setDescription] = useState('');
 
     const [confirmPassword, setConfirmPassword] = useState('')
 
@@ -22,15 +20,8 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
 
     const handleLoginSubmit = async () => {
         checkCreatingProfile(false);
-        onLogin(profile.username, profile.password);
+        onLogin(username, password);
         goToFeed();
-    };
-
-    const handleChange = (event) => {
-        setProfile({
-            ...profile,
-            [event.target.name]: event.target.value,
-        });
     };
 
     const handleConfirmPasswordChange = (event) => {
@@ -43,24 +34,22 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
 
     const submitNewProfile = async (event) => {
         event.preventDefault()
-        if (profile.password !== confirmPassword) {
+        if (password !== confirmPassword) {
             alert('Passwords do not match')
             return;
         }
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('username', username);
+        formData.append('password', password);
+        formData.append('birthday', birthday);
+        formData.append('profile_picture', profile_picture);
+        formData.append('description', description);
+
         const response = await fetch('/api/profiles', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: profile.name,
-                email: profile.email,
-                username: profile.username,
-                password: profile.password,
-                birthday: profile.birthday,
-                profile_picture: profile.profile_picture,
-                description: profile.description
-            })
+            body: formData
         });
         if (response.ok) {
             const data = await response.json();
@@ -79,19 +68,19 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
         <form className="create-profile-form" onSubmit={submitNewProfile}>
             <label>
             Name:
-            <input type="text" name="name" value={profile.name} onChange={handleChange} />
+            <input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} />
             </label>
             <label>
             Email:
-            <input type="email" name="email" value={profile.email} onChange={handleChange} />
+            <input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </label>
             <label>
             Username:
-            <input type="text" name="username" value={profile.username} onChange={handleChange} />
+            <input type="text" name="username" value={username} onChange={(e) => setUsername(e.target.value)} />
             </label>
             <label>
             Password:
-            <input type="password" name="password" value={profile.password} onChange={handleChange} />
+            <input type="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             </label>
             <label>
             Confirm password:
@@ -99,15 +88,15 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
             </label>
             <label>
             Birthday:
-            <input type="date" name="birthday" value={profile.birthday} onChange={handleChange} />
+            <input type="date" name="birthday" value={birthday} onChange={(e) => setBirthday(e.target.value)} />
             </label>
             <label>
-            Profile Picture URL:
-            <input type="text" name="profile_picture" value={profile.profile_picture} onChange={handleChange} />
+            Profile Picture:
+            <input type="file" accept="image/*" onChange={(e) => setProfilePicture(e.target.files[0])} />
             </label>
             <label>
             Description:
-            <textarea name="description" value={profile.description} onChange={handleChange} />
+            <textarea name="description" value={description} onChange={(e) => setDescription(e.target.value)} />
             </label>
             <div className='create-profile-buttons'>
                 <button type="submit">Create Profile</button>
