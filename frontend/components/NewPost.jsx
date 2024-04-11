@@ -7,6 +7,8 @@ function NewPost({ profile }) {
     const [previewImage, setPreviewImage] = useState(null);
     const [remainingChars, setRemainingChars] = useState(50);
     
+    console.log(image)
+
     const navigate = useNavigate();
 
     const handleContentChange = (e) => {
@@ -25,29 +27,26 @@ function NewPost({ profile }) {
         formData.append('image', image);
         formData.append('profile_id', profile.id);
         formData.append('profile_picture', profile.profile_picture);
-    
-        try {
-            const response = await fetch('/api/posts', {
-                method: 'POST',
-                body: formData,
-            });        
-            if (response.ok) {
-                const newPost = await response.json();
-                setContent('');
-                setImage(null);
-                handleClose();
-            } else {
-                console.error('Failed to create post');
-            }
-        } catch (error) {
-            console.error('Error creating post:', error);
-        }
-    };
-    
+        console.log('Submitting new post...')
 
-    const handleImageChange = (event) => {
-        setImage(event.target.files[0]);
-        setPreviewImage(URL.createObjectURL(event.target.files[0]));
+        console.log(formData.get('content'))
+        console.log(formData.get('image'))
+        console.log(formData.get('profile_id'))
+        console.log(formData.get('profile_picture'))
+        console.log(formData.get('name'))
+
+        const response = await fetch('/api/posts', {
+            method: 'POST',
+            body: formData,
+        });        
+        if (response.ok) {
+            const newPost = await response.json();
+            setContent('');
+            setImage(null);
+            handleClose();
+        } else {
+            console.error('Failed to create post');
+        }
     };
 
     const handleClose = () => {
@@ -65,7 +64,7 @@ function NewPost({ profile }) {
                 <p style={{paddingTop:'0'}}>Characters remaining: {remainingChars}</p>
                 Attach your image:
                 <label style={{display:'flex', alignItems:'center'}}>
-                    <input type="file" accept="image/*" onChange={handleImageChange} />
+                    <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
                 </label>
                 {previewImage ? (
                     <img src={previewImage} alt="Preview" style={{width: '200px', marginTop: '20px'}} />

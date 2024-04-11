@@ -80,7 +80,7 @@ class Profile(db.Model, SerializerMixin):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     birthday = db.Column(db.Date, nullable=True)
-    profile_picture_data = db.Column(db.String(500), nullable=True)
+    profile_picture = db.Column(db.String(500), nullable=True)
     description = db.Column(db.String(400))
 
     posts = db.relationship('Post', back_populates='profile', cascade='all, delete-orphan')
@@ -97,7 +97,7 @@ class Post(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(500), nullable=False)
-    sticker = db.Column(db.String(200), nullable=True)
+    image = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
     name = db.Column(db.String(100), nullable=False)
     profile_picture = db.Column(db.String(500), nullable=True)
@@ -112,11 +112,6 @@ class Post(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<Post {self.id}>'
-
-    def save_uploaded_image(self, image_file):
-        filename = secure_filename(image_file.filename)
-        image_file.save(f'uploads/{filename}')
-        self.sticker = f'uploads/{filename}'
 
 class Comment(db.Model, SerializerMixin):
     __tablename__ = 'comment_table'

@@ -7,12 +7,14 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [birthday, setBirthday] = useState('');
-    const [profile_picture, setProfilePicture] = useState(null);
+    const [profilePicture, setProfilePicture] = useState(null);
     const [description, setDescription] = useState('');
 
     const [confirmPassword, setConfirmPassword] = useState('')
 
     const navigate = useNavigate();
+
+    console.log(profilePicture)
 
     const goToFeed = () => {
         navigate('/feed');
@@ -44,21 +46,26 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
         formData.append('username', username);
         formData.append('password', password);
         formData.append('birthday', birthday);
-        formData.append('profile_picture', profile_picture);
+        formData.append('profile_picture', profilePicture);
         formData.append('description', description);
-
+    
         const response = await fetch('/api/profiles', {
             method: 'POST',
             body: formData
         });
+
+        
         if (response.ok) {
             const data = await response.json();
             checkCreatingProfile(false);
             handleLoginSubmit();
+
         } else {
             console.error('Failed to create profile');
         }
     }
+    
+    console.log(profilePicture)
 
     return (
     <div>

@@ -105,11 +105,8 @@ def create_profile():
 
         profile_picture = request.files.get('profile_picture')
 
-        profile_picture_data = None
-        if profile_picture is not None:
-            profile_picture_data = b64encode(profile_picture.read()).decode('utf-8')
+        profile_picture_data = b64encode(profile_picture.read()).decode('utf-8')
 
-        print('about to create profile')
         new_profile = Profile(
             name=request.form.get('name'),
             email=request.form.get('email'),
@@ -119,7 +116,6 @@ def create_profile():
             profile_picture=profile_picture_data,
             description=request.form.get('description')
         )
-        print('new_profile:', new_profile)
         db.session.add(new_profile)
         db.session.commit()
         return jsonify(new_profile.to_dict(rules = ['-likes.profile', '-posts.profile', '-comments.profile'])), 201
@@ -145,35 +141,35 @@ def create_like():
 @app.post('/api/posts')
 def create_post():
     try:
-        content = request.form.get('content')
         profile_id = request.form.get('profile_id')
-        
+
         profile = Profile.query.get(profile_id)
+
         if not profile:
             return jsonify({'error': 'Profile not found'}), 404
-
+        
         image = request.files.get('image')
+
         if not image:
             return jsonify({'error': 'No image uploaded'}), 400
-
-        if allowed_file(image.filename):
-            filename = secure_filename(image.filename)
-            image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
+        
+        image_data = b64encode(image.read()).decode('utf-8')
+        
         new_post = Post(
-            content=content,
-            sticker=filename,
+            content=request.form.get('content'),
+            image=image_data,
             profile_id=profile_id,
             name=profile.name,
             profile_picture=profile.profile_picture
         )
+        print(new_post)
         db.session.add(new_post)
         db.session.commit()
         
         return jsonify({
             'id': new_post.id,
             'content': new_post.content,
-            'sticker': new_post.sticker,
+            'sticker': new_post.image,
             'profile_id': new_post.profile_id,
             'name': new_post.name,
             'profile_picture': new_post.profile_picture,
