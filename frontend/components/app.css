@@ -1,5 +1,3 @@
-/* Add this CSS to your stylesheet */
-
 body {
 font-family: monospace;
 background-color: #ffffff;
@@ -38,17 +36,13 @@ justify-content: center;
 align-items: center;
 }
 
-.profile-background {
+.profile-background, .friends-background, .feed-background, .conversations-background {
 position: fixed;
 top: 0;
 left: 0;
 width: 100%;
 height: 100vh;
-background-image: url('https://www.hdwallpapers.in/download/beautiful_wood_path_between_green_trees_plants_bushes_grass_4k_hd_scenery-HD.jpg');
-background-repeat: no-repeat;
-background-size: cover;
-background-position: center;
-opacity: 0.4;
+background-image: url("https://www.transparenttextures.com/patterns/diagonales-decalees.png");
 z-index: -1;
 }
 
@@ -94,20 +88,6 @@ margin: 10px 0;
 text-align: center;
 }
 
-.feed-background {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100vh;
-background-image: url('https://www.hdwallpapers.in/download/beautiful_wood_path_between_green_trees_plants_bushes_grass_4k_hd_scenery-HD.jpg');
-background-repeat: no-repeat;
-background-size: cover;
-background-position: center;
-opacity: 0.4;
-z-index: -1;
-}
-
 .dog-image {
 width: 100%;
 max-width: 500px;
@@ -120,7 +100,8 @@ border-radius: 10px;
 .feed-header {
 background-color: #f8f9fa;
 padding: 10px;
-margin-top: 33px;
+padding-top: 93px;
+margin-top: -50px;
 text-align: center;
 position: inherit;
 border-bottom: 1px solid #dee2e6;
@@ -418,7 +399,7 @@ cursor: pointer;
     color: rgb(41, 72, 131);
 }
 
-.full-page-background {
+.create-profile-background {
 position: absolute;
 top: 0;
 left: 0;
@@ -600,9 +581,11 @@ border-radius: 10px;
 }
 
 .post {
-background-color: rgba(255, 255, 255, 0.75);
+background-color: rgba(220, 240, 255, 0.75);
 border-radius: 25px;
+border: 2px solid #2d2d2d;
 padding: 20px;
+width: 525px;
 margin: 15px;
 display: flex;
 flex-direction: column;
@@ -646,6 +629,10 @@ align-items: center;
 .post-pic {
 height: auto;
 width: 80%;
+}
+
+.post {
+width: 90%;
 }
 }
 
@@ -764,4 +751,20 @@ background-color: rgba(255, 255, 255, 0.8);
 display: flex;
 align-items: center;
 justify-content: center;
+}
+
+.friends-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    background-color: blue;
+    margin: 50px;
+}
+
+.conversations-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    background-color: blue;
+    margin: 50px;
 }

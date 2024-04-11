@@ -37,12 +37,17 @@ def home():
 @app.get('/api/check_session')
 def check_session():
     print('CHECKING SESSION')
-    print('This is the userId:',session.get('user_id'))
-    profile = db.session.get(Profile, session.get('user_id'))
-    print(f'check session {session.get("user_id")}')
+    user_id = session.get('user_id')
+    print('This is the userId:', user_id)
+    if user_id is None:
+        session.clear()
+        return {"message": "No user logged in"}, 401
+    profile = db.session.get(Profile, user_id)
+    print(f'check session {user_id}')
     if profile:
         return profile.to_dict(rules=['-password']), 200
     else:
+        session.clear()
         return {"message": "No user logged in"}, 401
 
 @app.get('/api/profiles')

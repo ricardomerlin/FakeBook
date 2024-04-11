@@ -6,6 +6,8 @@ import LoginForm from "./LoginForm"
 import CreateProfile from './CreateProfile';
 import NewPost from './NewPost';
 import ExtendedComments from './ExtendedComments';
+import Conversations from './Conversations';
+import FriendsList from './FriendsList';
 import './app.css';
 
 function App() {
@@ -17,10 +19,6 @@ function App() {
     const [comments, setComments] = useState([]);
     const [post, setPost] = useState(null);
 
-  console.log('profId',profId)
-  console.log('profile', profile)
-
-
     useEffect(() => {
       fetchComments();
       checkSession();
@@ -31,6 +29,8 @@ function App() {
       const response = await fetch('/api/check_session');
       if (response.ok) {
           const data = await response.json();
+          console.log(data)
+          console.log(data)
           setProfile(data);
           fetchComments();
       } else {
@@ -38,49 +38,43 @@ function App() {
       }
   }
 
-  console.log(profile)
-
     const handlePostAndComments = (comments, post) => {
         setComments(comments)
         setPost(post)
     }
 
-    console.log(profile)
-
     useEffect(() => {
-      fetch(`/api/profiles/${profId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProfile(data);
-      });
+      if (profId) {
+        fetch(`/api/profiles/${profId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setProfile(data);
+        });
+      }
     }, [profId]);
 
-    console.log('profile:',profile)
-
     const handleLogin = async (username, password) => {
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                },
-            body: JSON.stringify({ 
-                'username': username,
-                'password': password
-            }),
+      const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              },
+          body: JSON.stringify({ 
+              'username': username,
+              'password': password
+          }),
     });
-
     if (response.ok) {
         const data = await response.json();
         setLoginError(false);
         setProfId(data.id);
+        checkCreatingProfile(false);
       } else {
         const errorData = await response.json().catch(() => null); 
             console.log('Error:', errorData);
             setLoginError(true);
     }
     };
-
-    console.log(comments)
 
     const handleLogout = async () => {
       const response = await fetch('/api/logout', {
@@ -100,27 +94,16 @@ function App() {
             setLoginError(true);
       }
   };
-  
-    const handlePostCreated = (newPost) => {
-        console.log(newPost)
-    }
 
     const checkCreatingProfile = async (value) => {
         setCreatingProfile(value);
     }
-
-    console.log(creatingProfile)
 
     const fetchComments = async () => {
       const response = await fetch(`/api/comments`);
       const data = await response.json();
       setAllComments(data);
   };
-
-    console.log('creating profile?:',creatingProfile)
-
-
-    console.log(loginError)
 
   return (
     <Router>
@@ -129,14 +112,18 @@ function App() {
           <nav>
             <Link to="/profile">Profile</Link>
             <Link to="/feed">Feed</Link>
+            <Link to="/conversations">Messages</Link>
+            <Link to="/friends-list">Friends</Link>
             <Link to="/login" onClick={handleLogout} checkCreatingProfile={checkCreatingProfile}>Logout</Link>
           </nav>
           <Routes>
-            <Route path="/" element={<Feed profile={profile} comments={comments} allComments={allComments}/>} />
+            <Route path="/" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments}/>} />
             <Route path="/profile" element={<Profile profile={profile} />} />
             <Route path="/feed" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} handlePostAndComments={handlePostAndComments}/>} />
-            <Route path='/new-post' element={<NewPost profile={profile} onPostCreated={handlePostCreated}/>} />
+            <Route path="/friends-list" element={<FriendsList profile={profile} />} />
+            <Route path='/new-post' element={<NewPost profile={profile}/>} />
             <Route path='/extended-comments' element={<ExtendedComments profile={profile} comments={comments} post={post}/>} />
+            <Route path='/conversations' element={<Conversations profile={profile} />} />
           </Routes>
         </>
       ) : (

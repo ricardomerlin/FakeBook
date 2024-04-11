@@ -73,7 +73,7 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
 
     return (
     <div>
-        <div className="full-page-background"></div>
+        <div className="create-profile-background"></div>
         <div className="create-profile-container">
         <h1>Create Profile</h1>
         <form className="create-profile-form" onSubmit={submitNewProfile}>

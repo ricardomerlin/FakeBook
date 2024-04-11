@@ -20,8 +20,6 @@ function ExtendedComments({ profile, post, comments }) {
         setNewComment(event.target.value);
     };
 
-    console.log(comments)
-
     const handleNewCommentSubmit = async (event) => {
         event.preventDefault();
         console.log('Submitting new comment...');

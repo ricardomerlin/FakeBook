@@ -221,6 +221,7 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
                 isOpen={otherUserId > 0}
                 onClose={handleCloseOtherUser}
                 otherUserId={otherUserId}
+                profile={profile}
             />
             <DeleteConfirmationModal
                 isOpen={showDeleteModal}

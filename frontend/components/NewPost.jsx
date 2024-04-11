@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function NewPost({ onPostCreated, profile }) {
+function NewPost({ profile }) {
     const [content, setContent] = useState('');
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
@@ -33,7 +33,6 @@ function NewPost({ onPostCreated, profile }) {
             });        
             if (response.ok) {
                 const newPost = await response.json();
-                onPostCreated(newPost);
                 setContent('');
                 setImage(null);
                 handleClose();

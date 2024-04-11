@@ -9,7 +9,6 @@ metadata = MetaData(naming_convention={
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
 })
 
-
 db = SQLAlchemy()
 
 
@@ -20,11 +19,11 @@ class Friendship(db.Model, SerializerMixin):
     added_at = db.Column(db.DateTime, default=datetime.now)
     accepted = db.Column(db.Boolean, default=False)
 
-    profile_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
-    friend_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    self_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    requester_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
 
-    profile = db.relationship('Profile', foreign_keys=[profile_id], backref='friends')
-    friend = db.relationship('Profile', foreign_keys=[friend_id], backref='friend_of')
+    profile = db.relationship('Profile', foreign_keys=[self_id], backref='friends')
+    requester = db.relationship('Profile', foreign_keys=[requester_id], backref='friend_of')
 
     serialize_rules = ('-profile.friends', '-friend.friend_of')
 
@@ -37,11 +36,11 @@ class Conversation(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
 
-    user1_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
-    user2_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    self_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    other_user_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
 
-    user1 = db.relationship('Profile', foreign_keys=[user1_id], backref='user1_conversations')
-    user2 = db.relationship('Profile', foreign_keys=[user2_id], backref='user2_conversations')
+    user1 = db.relationship('Profile', foreign_keys=[self_id], backref='user1_conversations')
+    user2 = db.relationship('Profile', foreign_keys=[other_user_id], backref='user2_conversations')
 
     messages = db.relationship('Message', back_populates='conversation', cascade='all, delete-orphan')
 
