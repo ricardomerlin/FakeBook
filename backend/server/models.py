@@ -24,6 +24,9 @@ class Friendship(db.Model, SerializerMixin):
     self_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
     recipient_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
 
+    self_profile_picture = db.Column(db.String(500), nullable=True)
+    recipient_profile_picture = db.Column(db.String(500), nullable=True)
+
     sender = db.relationship('Profile', foreign_keys=[self_id], backref='friends')
     recipient = db.relationship('Profile', foreign_keys=[recipient_id], backref='friend_of')
 
@@ -43,6 +46,9 @@ class Conversation(db.Model, SerializerMixin):
 
     self_name = db.Column(db.String(100), nullable=False)
     other_user_name = db.Column(db.String(100), nullable=False)
+
+    self_profile_picture = db.Column(db.String(500), nullable=True)
+    other_user_profile_picture = db.Column(db.String(500), nullable=True)
 
     user1 = db.relationship('Profile', foreign_keys=[self_id], backref='user1_conversations')
     user2 = db.relationship('Profile', foreign_keys=[other_user_id], backref='user2_conversations')
@@ -121,7 +127,7 @@ class Comment(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(300), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
     name = db.Column(db.String(100), nullable=False)
     profile_picture = db.Column(db.String(500), nullable=True)
 
@@ -140,7 +146,7 @@ class Like(db.Model, SerializerMixin):
     __tablename__ = 'like_table'
 
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
     profile_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'))
     profile = db.relationship('Profile', back_populates='likes')

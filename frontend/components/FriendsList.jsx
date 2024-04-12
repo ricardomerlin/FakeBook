@@ -113,6 +113,7 @@ const requesterInfo = async (request) => {
   return (
     <div>
       <div className='friends-background'></div>
+      <h1 className='friends-header' style={{paddingTop: '50px', textAlign: 'center'}}>Friends</h1>
       <div className='friends-container'>
         {(newRequests.length > 0) ? 
         <div className="friend-requests-container">New requests
@@ -121,7 +122,7 @@ const requesterInfo = async (request) => {
         :
         null
         }
-        <h1>Friends</h1>
+        <h1>Friends List</h1>
         <div className='friends-list'>
           {mappedFriends}
         </div>

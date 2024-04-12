@@ -63,8 +63,8 @@ function Conversations({ profile }) {
     const searchResults = friends.filter(friend => {
       if (friend.accepted === false) return false;
       return friend.sender_name.toLowerCase() == profile.name 
-        ? friend.recipient_name.toLowerCase().includes(searchedFriend.toLowerCase()) 
-        : friend.sender_name.toLowerCase().includes(searchedFriend.toLowerCase())
+        ? friend.sender_name.toLowerCase().includes(searchedFriend.toLowerCase())
+        : friend.recipient_name.toLowerCase().includes(searchedFriend.toLowerCase()) 
     });
     setFilteredFriends(searchResults);
   }
@@ -87,8 +87,12 @@ function Conversations({ profile }) {
   const closeModal = () => {
     setModalIsOpen(false);
   }
+  console.log(friends)
 
   const startConversation = (friendName, friendId) => {
+    const friend = friends.find(friend => friend.self_id === friendId);
+    const user2_profile_picture = friend ? friend.profile_picture : null;
+  
     const postConversation = async () => {
       const response = await fetch('/api/conversations', {
         method: 'POST',
@@ -99,20 +103,23 @@ function Conversations({ profile }) {
           user1_id: profile.id,
           user2_id: friendId,
           user1_name: profile.name,
-          user2_name: friendName
+          user2_name: friendName,
+          user1_profile_picture: profile.profile_picture,
+          user2_profile_picture: user2_profile_picture
         }),
       });
       if (response.ok) {
         console.log('Conversation started');
+        getConvos();
         getMessages();
-        closeModal();
+        openModal();
       } else {
         console.error('Failed to start conversation');
       }
     }
     postConversation();
   }
-
+  
 
   const openConversationModal = async (conversation) => {
     const otherUserId = conversation.self_id === profile.id ? conversation.other_user_id : conversation.self_id;
@@ -174,57 +181,66 @@ function Conversations({ profile }) {
     }
   }
 
+  console.log(filteredFriends)
+
   const userConversations = conversations.filter(conversation => conversation.self_id === profile.id || conversation.other_user_id === profile.id);
 
   return (
     <div>
       <div className="conversations-background"></div>
+      <h1 className="conversations-header" style={{paddingTop: '50px', textAlign: 'center'}}>Messages</h1>
       <div className="conversations-page">
-      <div className="new-message-container">
-        <button onClick={newMessage} className="new-message-button">New message</button>
-        {initiatingConvo && (
-          <div className="initiating-message">
-            <input
-              type='text'
-              onChange={(e) => {
-                setSearchedFriend(e.target.value);
-                if (e.target.value === '') {
-                  setSearchedFriend(null);
-                }
-              }}
-              placeholder="Search for a friend..."
-              className="search-input"
-            />
-            <button onClick={() => {
-              setInitiatingConvo(false);
-              setSearchedFriend(null);
-            }}>Cancel</button>
-            {filteredFriends.length > 0 && (
-              <div className="dropdown">
-                {filteredFriends.map((friend, index) => {
-                  const friendName = friend.sender_name.toLowerCase() === profile.name.toLowerCase() ? friend.recipient_name : friend.sender_name;
-                  return (
-                    <div key={friend.id} className="dropdown-item" onClick={() => startConversation(friendName, friend.id)}>
-                      <img src={`data:image/jpeg;base64,${friend.profile_picture}`} alt="Profile" className="friend-profile-picture" />
-                      <span className="friend-name">{friendName}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+        <div className="new-message-container">
+          <button onClick={newMessage} className="new-message-button">New message</button>
+          {initiatingConvo && (
+            <div className="initiating-message">
+              <input
+                type='text'
+                onChange={(e) => {
+                  setSearchedFriend(e.target.value);
+                  if (e.target.value === '') {
+                    setSearchedFriend(null);
+                  }
+                }}
+                placeholder="Search for a friend..."
+                className="search-input"
+              />
+              <button onClick={() => {
+                setInitiatingConvo(false);
+                setSearchedFriend(null);
+              }}>Cancel</button>
+              {filteredFriends.length > 0 && (
+                <div className="dropdown">
+                  {filteredFriends.map((friend, index) => {
+                    const friendName = friend.sender_name.toLowerCase() === profile.name.toLowerCase() ? friend.recipient_name : friend.sender_name;
+                    const friendPfp = friend.sender_name.toLowerCase() === profile.name.toLowerCase() ? friend.recipient_profile_picture : friend.sender_profile_picture;
+                    return (
+                      <div key={friend.id} className="dropdown-item" onClick={() => startConversation(friendName, friend.id)}>
+                        <img src={`data:image/jpeg;base64,${friendPfp}`} alt="Profile" className="friend-profile-picture" />
+                        <span className="friend-name">{friendName}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         <div className="conversations-list">
-          {userConversations.map((conversation, index) => {
-            const otherUser = conversation.self_id === profile.id ? conversation.other_user_name : conversation.self_name;
-            return (
-              <div key={conversation.id} className="conversation-item" onClick={() => openConversationModal(conversation)}>
-                <h3>{otherUser}</h3>
-                <p>{conversation.last_message}</p>
-              </div>
-            );
-          }
+          {userConversations.length === 0 ? (
+            <div className="no-conversations">
+              <p>No conversations yet. Start a new one!</p>
+            </div>
+          ) : (
+            userConversations.map((conversation, index) => {
+              const otherUser = conversation.self_id === profile.id ? conversation.other_user_name : conversation.self_name;
+              return (
+                <div key={conversation.id} className="conversation-item" onClick={() => openConversationModal(conversation)}>
+                  <h3>{otherUser}</h3>
+                  <p>{conversation.last_message}</p>
+                </div>
+              );
+            })
           )}
         </div>
         <Modal

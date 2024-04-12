@@ -44,7 +44,9 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
         sender_name: profile.name,
         recipient_name: otherUser.name,
         self_id: profile.id,
-        recipient_id: otherUser.id
+        recipient_id: otherUser.id,
+        self_profile_picture: profile.profile_picture,
+        recipient_profile_picture: otherUser.profile_picture
       }),
     });
     if (response.ok) {
@@ -75,18 +77,8 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
   }
 
   if (!otherUser) {
-    return <div>Loading...</div>;
+    return null;
   }
-
-
-  // const checkRequestReceived = async () => {
-  //   const response = await fetch(`/api/friends`);
-  //   const data = await response.json();
-  //   if (data.some(friendship => friendship.self_id === otherUser.id && friendship.recipient_id === profile.id && friendship.accepted === false)) {
-  //     console.log('Friend request already received')
-  //     setRequestStatus(2);
-  //   }
-  // }
 
   const removeFriend = async () => {
     try {

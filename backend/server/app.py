@@ -206,7 +206,9 @@ def create_conversation():
             self_id=data.get('user1_id'),
             other_user_id=data.get('user2_id'),
             self_name=data.get('user1_name'),
-            other_user_name=data.get('user2_name')
+            other_user_name=data.get('user2_name'),
+            self_profile_picture=data.get('user1_profile_picture'),
+            other_user_profile_picture=data.get('user2_profile_picture')
         )
         db.session.add(new_conversation)
         db.session.commit()
@@ -244,7 +246,9 @@ def create_friendship():
             sender_name=data.get('sender_name'),
             recipient_name=data.get('recipient_name'),
             self_id=data.get('self_id'),
-            recipient_id=data.get('recipient_id')
+            recipient_id=data.get('recipient_id'),
+            self_profile_picture=data.get('self_profile_picture'),
+            recipient_profile_picture=data.get('recipient_profile_picture')
         )
         db.session.add(new_friendship)
         db.session.commit()
