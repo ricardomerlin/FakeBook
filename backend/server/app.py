@@ -24,10 +24,6 @@ migrate = Migrate(app, db)
 
 db.init_app(app)
 
-def allowed_file(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 @app.get('/')
 def home():
     print(os.getenv('CLIENT_SECRET'))
@@ -35,10 +31,7 @@ def home():
 
 @app.get('/api/check_session')
 def check_session():
-    print('CHECKING SESSION')
-    print('This is the userId:',session.get('user_id'))
     profile = db.session.get(Profile, session.get('user_id'))
-    print(f'check session {session.get("user_id")}')
     if profile:
         return profile.to_dict(rules=['-password']), 200
     else:
@@ -51,11 +44,14 @@ def get_profiles():
 
 @app.get('/api/profiles/<int:id>')
 def get_profile_by_id(id):
-    profile = db.session.get(Profile, id)
-    if not profile:
-        return {'Error': 'Profile not found.'}
-    profile_dict = profile.to_dict(rules = ['-likes', '-posts', '-comments'])
-    return profile_dict, 202
+    try:
+        profile = db.session.get(Profile, id)
+        if not profile:
+            return {'Error': 'Profile not found.'}
+        profile_dict = profile.to_dict(rules = ['-likes', '-posts', '-comments'])
+        return profile_dict, 202
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 @app.get('/api/posts')
 def get_posts():
@@ -162,14 +158,13 @@ def create_post():
             name=profile.name,
             profile_picture=profile.profile_picture
         )
-        print(new_post)
         db.session.add(new_post)
         db.session.commit()
         
         return jsonify({
             'id': new_post.id,
             'content': new_post.content,
-            'sticker': new_post.image,
+            'image': new_post.image,
             'profile_id': new_post.profile_id,
             'name': new_post.name,
             'profile_picture': new_post.profile_picture,
@@ -200,13 +195,22 @@ def create_comment():
 def create_conversation():
     try:
         data = request.get_json()
+        existing_conversation = Conversation.query.filter_by(
+            self_id=data.get('user1_id'),
+            other_user_id=data.get('user2_id')
+        ).first()
+        if existing_conversation:
+            print('Conversation already exists')
+            return jsonify({'error': 'A conversation already exists between these two users'}), 400
         new_conversation = Conversation(
-            user1_id=data.get('user1_id'),
-            user2_id=data.get('user2_id')
+            self_id=data.get('user1_id'),
+            other_user_id=data.get('user2_id'),
+            self_name=data.get('user1_name'),
+            other_user_name=data.get('user2_name')
         )
         db.session.add(new_conversation)
         db.session.commit()
-        return jsonify(new_conversation.to_dict(rules = ['-messages'])), 201
+        return jsonify(new_conversation.to_dict()), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
@@ -217,7 +221,8 @@ def create_message():
         new_message = Message(
             content=data.get('content'),
             conversation_id=data.get('conversation_id'),
-            sender_id=data.get('sender_id')
+            sender_id=data.get('sender_id'),
+            receiver_id=data.get('receiver_id')
         )
         db.session.add(new_message)
         db.session.commit()
@@ -229,6 +234,12 @@ def create_message():
 def create_friendship():
     try:
         data = request.get_json()
+        existing_friendship = Friendship.query.filter_by(
+            self_id=data.get('self_id'),
+            recipient_id=data.get('recipient_id')
+        ).first()
+        if existing_friendship:
+            return jsonify({'error': 'A friendship already exists between these two users'}), 400
         new_friendship = Friendship(
             sender_name=data.get('sender_name'),
             recipient_name=data.get('recipient_name'),
@@ -324,9 +335,6 @@ def login():
     user = Profile.query.filter_by(username=username).first()
     if user and bcrypt.check_password_hash(user.password, password):
         session['user_id'] = user.id
-        print('user.password:', user.password)
-        print(password)
-        print('login succesful')
         return jsonify({'message': 'Login successful', 'id': user.id}), 200
     else:
         return jsonify({'error': 'Invalid username or password'}), 401

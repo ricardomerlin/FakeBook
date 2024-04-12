@@ -81,15 +81,24 @@ function FriendsList({ profile }) {
     }
   }
 
-  const mappedFriendRequests = newRequests.map((request) => {
-    return (
-      <div key={request.id} className='friend-request'>
-        <h3>{request.sender_name}</h3>
-        <a href='#' onClick={() => acceptFriendRequest(request)}>Accept</a>
-        <a href='#' onClick={() => declineFriendRequest(request)}>Decline</a>
+const mappedFriendRequests = newRequests.map((request) => {
+  return (
+    <div key={request.id} className='friend-request'>
+      <h3>{request.sender_name}</h3>
+      <div className='friend-request-actions'>
+        <a href='#' className='accept-button' onClick={() => acceptFriendRequest(request)}>Accept</a>
+        <a href='#' className='decline-button' onClick={() => declineFriendRequest(request)}>Decline</a>
       </div>
-    )
-  })
+    </div>
+  )
+})
+
+const requesterInfo = async (request) => {
+  const requester = await fetch(`/api/profiles/${request.sender_id}`)
+  const data = await requester.json();
+  return data;
+}
+
 
   const mappedFriends = friends.map((friend) => {
     return (

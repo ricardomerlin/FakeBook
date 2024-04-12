@@ -5,56 +5,36 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
   const [otherUser, setOtherUser] = useState(null);
   const [requestStatus, setRequestStatus] = useState(0);
 
-  // console.log(profile)
-  // console.log(otherUser)
-  // console.log(otherUserId)
+  console.log(otherUserId)
+  console.log(profile)
 
   useEffect(() => {
-    fetchOtherUser()
+    if (otherUserId) fetchOtherUser()
   }, [otherUserId])
   
   useEffect(() => {
-    checkFriendRequest()
     if (otherUser) {
-      checkRequestReceived()
       checkFriends()
     }
   }, [otherUser])
-
-  const fetchOtherUser = async () => {
-    const response = await fetch(`/api/profiles/${otherUserId}`);
-    const data = await response.json();
-    setOtherUser(data);
-  }
-
-  const checkFriendRequest = async () => {
-    console.log
-    const response = await fetch(`/api/friends`);
-    const data = await response.json();
-    if (data.some(friendship => friendship.self_id === profile.id && friendship.recipient_id === otherUser.id && friendship.accepted === false)) {
-      console.log('Friend request already sent')
-      setRequestStatus(1);
-    }
-  }
-
-  const checkFriends = async () => {
-    const response = await fetch(`/api/friends`);
-    const data = await response.json();
-    if (data.some(friendship => (friendship.self_id === profile.id && friendship.recipient_id === otherUser.id) || (friendship.self_id === otherUser.id && friendship.recipient_id === profile.id) && friendship.accepted === true)) {
-      setRequestStatus(3);
-    }
-  }
 
   const reformatBirthday = (birthday) => {
     const date = new Date(birthday);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
-
-  if (!otherUser) {
-    return <div>Loading...</div>;
-  }
-
+  
+  //requestStatus: 
+  // 0 = no request sent
+  // 1 = request sent by current user
+  // 2 = request received by current user
+  // 3 = friends
+  
   const addFriend = async () => {
+    const getFriends = await fetch(`/api/friends`);
+    const friends = await getFriends.json();
+    if (friends.some(friendship => friendship.self_id === profile.id && friendship.recipient_id === otherUser.id && (friendship.accepted === false || friendship.accepted === true))) {
+      return;
+    }
     const response = await fetch(`/api/friends`, {
       method: 'POST',
       headers: {
@@ -68,25 +48,49 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
       }),
     });
     if (response.ok) {
-      console.log('Friend request sent');
-      checkFriendRequest();
+      checkFriends()
     } else {
       console.error('Failed to send friend request');
     }
   }
 
-  const checkRequestReceived = async () => {
+  const fetchOtherUser = async () => {
+    const response = await fetch(`/api/profiles/${otherUserId}`);
+    const data = await response.json();
+    setOtherUser(data);
+  }
+
+  const checkFriends = async () => {
     const response = await fetch(`/api/friends`);
     const data = await response.json();
-    if (data.some(friendship => friendship.self_id === otherUser.id && friendship.recipient_id === profile.id && friendship.accepted === false)) {
-      console.log('Friend request already received')
+    if (data.some(friendship => friendship.self_id === profile.id && friendship.recipient_id === otherUser.id && friendship.accepted === false)) {
+      setRequestStatus(1);
+    } else if (data.some(friendship => friendship.self_id === otherUser.id && friendship.recipient_id === profile.id && friendship.accepted === false)) {
       setRequestStatus(2);
+    } else if (data.some(friendship => ( friendship.self_id === profile.id && friendship.recipient_id === otherUser.id || friendship.self_id == otherUser.id && friendship.recipient_id == profile.id ) && friendship.accepted === true)) {
+      setRequestStatus(3);
+    } else {
+      setRequestStatus(0);
     }
   }
 
+  if (!otherUser) {
+    return <div>Loading...</div>;
+  }
+
+
+  // const checkRequestReceived = async () => {
+  //   const response = await fetch(`/api/friends`);
+  //   const data = await response.json();
+  //   if (data.some(friendship => friendship.self_id === otherUser.id && friendship.recipient_id === profile.id && friendship.accepted === false)) {
+  //     console.log('Friend request already received')
+  //     setRequestStatus(2);
+  //   }
+  // }
+
   const removeFriend = async () => {
     try {
-      const response = await fetch(`/api/friends/${profile.id}&${otherUser.id}`, {
+      const response = await fetch(`/api/friends/${profile.id}/${otherUser.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -113,7 +117,7 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
           <h2 className="profile-title" style={{marginBottom:'5px'}}>{otherUser.name}</h2>
           <h2 style={{textAlign:'center', marginTop: '0'}} className="profile-username">Username: {otherUser.username}</h2>
           <div className="profile-content">
-            <img className="profile-avatar" src={otherUser.profile_picture} alt="user avatar" />
+            <img className="profile-avatar" src={`data:image/jpeg;base64,${otherUser.profile_picture}`} alt="user avatar" />
             <p className='profile-birthday'>Born on {reformatBirthday(otherUser.birthday)}</p>
             <p className="profile-email">Email Address: {otherUser.email}</p>
             <p className="profile-bio">{otherUser.description}</p>

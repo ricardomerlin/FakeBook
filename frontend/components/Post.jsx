@@ -156,10 +156,6 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
         navigate('/profile');
     }
 
-    
-    const imageUrl = "http://localhost:5555/uploaded_images";
-    const stickerPath = `${imageUrl}/${post.sticker}`
-
     const reformatPostDate = () => {
         const dateObject = new Date(post.created_at);
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -180,15 +176,15 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
     return (
         <div className="post" onDoubleClick={liked ? handleUnlike : handleLike}>
             <div className="post-header">
-                {post.profile_picture ? <img className="profile-pic" src={post.profile_picture} alt="Profile" /> : <img className='profile-pic' src='https://st2.depositphotos.com/11742109/48212/v/450/depositphotos_482126926-stock-illustration-gender-neutral-profile-avatar-front.jpg' alt='default-pfp' />}
+                {post.profile_picture ? <img className="profile-pic" src={`data:image/jpeg;base64,${post.profile_picture}`} alt="Profile" /> : <img className='profile-pic' src='https://st2.depositphotos.com/11742109/48212/v/450/depositphotos_482126926-stock-illustration-gender-neutral-profile-avatar-front.jpg' alt='default-pfp' />}
                 <h5>Posted by {post.profile_id == profile.id ? <a>you</a> : <a className='link-to-profile' onClick={() => handleOpenOtherUser(post.profile_id)}>{post.name}</a>} on {reformatPostDate()} at {reformatPostTime()}</h5>
                 {deleteable ? <button className='delete-post-feed-button' onClick={() => setShowDeleteModal(true)}>X</button> : null}            
             </div>
             <div className='content-header'>
                 <p>{post.content}</p>
             </div>
-            {post.sticker ? 
-            <img className="post-pic" src={stickerPath} alt="pic_post" onClick={handleImageClick} /> : null}
+            {post.image ? 
+            <img className="post-pic" src={`data:image/jpeg;base64,${post.image}`} alt="pic_post" onClick={handleImageClick} /> : null}
             {liked ? <button className='unlike-button' onClick={handleUnlike}>♥ {likes} {likes == 1 ? 'Like' : 'Likes'}</button> : <button className='like-button' onClick={handleLike}>♡ {likes} {likes == 1 ? 'Like' : 'Likes'}</button>}
             {liked ? <p>You liked this post.</p> : null}
             <p style={{marginBottom: '0'}}><strong><u>Replies</u></strong></p>
@@ -213,7 +209,7 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
                 <div className="modal-overlay" onClick={handleCloseModal}></div>
                 <div className="modal">
                     <span className="close" onClick={handleCloseModal}>X</span>
-                    <img className="modal-content" src={stickerPath} alt="pic_post" />
+                    <img className="modal-content" src={`data:image/jpeg;base64,${post.image}`} alt="pic_post" />
                 </div>
                 </>
             )}

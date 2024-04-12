@@ -28,7 +28,7 @@ class Friendship(db.Model, SerializerMixin):
     recipient = db.relationship('Profile', foreign_keys=[recipient_id], backref='friend_of')
 
     serialize_rules = ('-sender', '-recipient')
-
+    
     def __repr__(self):
         return f'<Friendship {self.id}>'
 
@@ -41,12 +41,15 @@ class Conversation(db.Model, SerializerMixin):
     self_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
     other_user_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
 
+    self_name = db.Column(db.String(100), nullable=False)
+    other_user_name = db.Column(db.String(100), nullable=False)
+
     user1 = db.relationship('Profile', foreign_keys=[self_id], backref='user1_conversations')
     user2 = db.relationship('Profile', foreign_keys=[other_user_id], backref='user2_conversations')
 
     messages = db.relationship('Message', back_populates='conversation', cascade='all, delete-orphan')
 
-    serialize_rules = ('-messages', 'user1', 'user2')
+    serialize_rules = ('-messages', '-user1', '-user2')
 
     def __repr__(self):
         return f'<Conversation {self.id}>'
@@ -56,7 +59,7 @@ class Message(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(300), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
     sender_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
     receiver_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
@@ -66,7 +69,7 @@ class Message(db.Model, SerializerMixin):
     receiver = db.relationship('Profile', foreign_keys=[receiver_id], backref='received_messages')
     conversation = db.relationship('Conversation', back_populates='messages')
 
-    serialize_rules = ('-sender.sent_messages', '-receiver.received_messages', '-conversation.messages')
+    serialize_rules = ('-sender', '-receiver', '-conversation')
 
     def __repr__(self):
         return f'<Message {self.id}>'
@@ -87,7 +90,7 @@ class Profile(db.Model, SerializerMixin):
     comments = db.relationship('Comment', back_populates='profile', cascade='all, delete-orphan')
     likes = db.relationship('Like', back_populates='profile', cascade='all, delete-orphan')
 
-    serialize_rules = ('-posts', '-comments', '-likes', '-sent_messages', '-received_messages')
+    serialize_rules = ('-posts', '-comments', '-likes', '-sent_messages', '-received_messages', '-friends', '-friend_of')
 
     def __repr__(self):
         return f'<Profile {self.id}>'

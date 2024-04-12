@@ -9,7 +9,6 @@ function ProfilePost({ post, profile, fetchPosts }) {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [deleteable, setDeleteable] = useState(false);
-    const [profilePic, setProfilePic] = useState('');
     const [userLike, setUserLike] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     
@@ -22,12 +21,6 @@ function ProfilePost({ post, profile, fetchPosts }) {
     useEffect(() => {
         setDeleteable(post.profile_id === profile.id);
     }, [post, profile.id]);
-
-    const fetchProfile = async () => {
-        const response = await fetch(`/api/profiles/${post.profile_id}`);
-        const data = await response.json();
-        setProfilePic(data.profile_picture);
-    };
 
     const fetchLikes = async () => {
         const response = await fetch(`/api/likes`);
@@ -149,10 +142,6 @@ function ProfilePost({ post, profile, fetchPosts }) {
         }
     }
 
-    const imageUrl = "http://localhost:5555/uploaded_images";
-
-    const stickerPath = `${imageUrl}/${post.sticker}`
-
     const reformatPostDate = () => {
         const dateObject = new Date(post.created_at);
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -179,16 +168,16 @@ function ProfilePost({ post, profile, fetchPosts }) {
 
     return (
         <div className="profile-post-feed-display-item">
-            {post.sticker ? 
-            <img className="profile-post-pic" src={stickerPath} alt="pic_post" onClick={handleOpenModal}/> : null}
+            {post.image ? 
+            <img className="profile-post-pic" src={`data:image/jpeg;base64,${post.image}`} alt="pic_post" onClick={handleOpenModal}/> : null}
             <Modal isOpen={showModal} onRequestClose={handleCloseModal}>
                 <div className="profile-post-header">
                     <h5>You posted this on {reformatPostDate()} at {reformatPostTime()}</h5>
                 </div>
                 <div className='profile-post-modal-image-comments'>
                     <div className="profile-image-like-wrapper">
-                        {post.sticker ? 
-                        <img className="profile-post-pic-modal" src={stickerPath} alt="profile-pic-post" /> : null}
+                        {post.image ? 
+                        <img className="profile-post-pic-modal" src={`data:image/jpeg;base64,${post.image}`} alt="profile-pic-post" /> : null}
                         {liked ? <button className='unlike-button' onClick={handleUnlike}><strong>{likes} {likes == 1 ? 'Like' : 'Likes'}</strong></button> : <button className='like-button' onClick={handleLike}>Like ♡</button>}
                         {liked ? <p>You liked this post.</p> : null}
                     </div>
