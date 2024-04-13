@@ -84,6 +84,23 @@ def get_conversations():
     conversations = Conversation.query.all()
     return jsonify([c.to_dict(rules = ['-messages']) for c in conversations])
 
+@app.get('/api/conversations/<int:id>/last_message')
+def get_last_message_of_conversation(id):
+    try:
+        conversation = Conversation.query.get(id)
+        if not conversation:
+            return jsonify({'error': 'Conversation not found'}), 404
+        last_message = Message.query.filter_by(conversation_id=id).order_by(Message.created_at.desc()).first()
+        if not last_message:
+            return jsonify({'message': 'No messages found for this conversation'}), 404
+        return jsonify({
+            'conversation_id': id,
+            'last_message': last_message.to_dict()
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
 @app.get('/api/messages')
 def get_messages():
     messages = Message.query.all()

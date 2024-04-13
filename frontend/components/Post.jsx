@@ -178,7 +178,6 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
             <div className="post-header">
                 {post.profile_picture ? <img className="profile-pic" src={`data:image/jpeg;base64,${post.profile_picture}`} alt="Profile" /> : <img className='profile-pic' src='https://st2.depositphotos.com/11742109/48212/v/450/depositphotos_482126926-stock-illustration-gender-neutral-profile-avatar-front.jpg' alt='default-pfp' />}
                 <h5>Posted by {post.profile_id == profile.id ? <a>you</a> : <a className='link-to-profile' onClick={() => handleOpenOtherUser(post.profile_id)}>{post.name}</a>} on {reformatPostDate()} at {reformatPostTime()}</h5>
-                {deleteable ? <button className='delete-post-feed-button' onClick={() => setShowDeleteModal(true)}>X</button> : null}            
             </div>
             <div className='content-header'>
                 <p>{post.content}</p>
@@ -196,12 +195,13 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
                     </div>
                 ) : (
                     comments.slice(0, 3).map((comment, index) => (
-                            <p key={index} className='comment'><strong>{comment.name} </strong>{comment.content}</p>
+                        <p key={index} className='comment'><strong>{comment.name} </strong>{comment.content}</p>
                     ))
                 )}
                 <form onSubmit={handleNewCommentSubmit} className='submit-comment-feed'>
                     <input type="text" style={{width: '200px'}} value={newComment} onChange={handleNewCommentChange} placeholder={`Reply to ${post.name}...`} />
                     <button type="submit" style={{marginTop: '10px'}}>Post</button>
+                    {deleteable ? <a href='#' className='delete-post-feed-button' onClick={() => setShowDeleteModal(true)}>Delete post</a> : null}            
                 </form>
             </div>
             {showModal && (

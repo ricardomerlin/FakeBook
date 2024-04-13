@@ -41,9 +41,7 @@ function Feed({ profile, fetchComments, comments, allComments, handlePostAndComm
         <div>
             <div className='feed-background'></div>
             <div className='feed-container'>
-                <header className='feed-header'>
-                    <h1>Welcome to the Feed!</h1>
-                </header>
+                <h1 className='feed-header'>Main Feed</h1>
                 <button className="floating-button" onClick={travelNewPost}>New Post</button>
                 <div className='posts-container'>
                     {isLoading ? (

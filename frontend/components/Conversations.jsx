@@ -16,6 +16,7 @@ function Conversations({ profile }) {
   const [userMessages, setUserMessages] = useState([]);
   const [otherUserProfile, setOtherUserProfile] = useState(null);
   const [allMessages, setAllMessages] = useState([]);
+  const [lastMessages, setLastMessages] = useState({});
 
   useEffect(() => {
     getConvos();
@@ -45,7 +46,18 @@ function Conversations({ profile }) {
     const response = await fetch('/api/conversations');
     const data = await response.json();
     setConversations(data);
+  
+    const lastMessages = {};
+    for (let convo of data) {
+      const response = await fetch(`/api/conversations/${convo.id}/last_message`);
+      const messageData = await response.json();
+      lastMessages[convo.id] = messageData;
+    }
+    setLastMessages(lastMessages);
   }
+
+
+  console.log(lastMessages[1]?.last_message.content)
 
   const getMessages = async () => {
     const response = await fetch('/api/messages');
@@ -74,7 +86,6 @@ function Conversations({ profile }) {
     setUserMessages(messages);
   }
 
-  console.log(userMessages)
 
   const newMessage = () => {
     setInitiatingConvo(true);
@@ -87,11 +98,10 @@ function Conversations({ profile }) {
   const closeModal = () => {
     setModalIsOpen(false);
   }
-  console.log(friends)
 
   const startConversation = (friendName, friendId) => {
-    const friend = friends.find(friend => friend.self_id === friendId);
-    const user2_profile_picture = friend ? friend.profile_picture : null;
+    const friend = friends.find(friend => friend.id === friendId);
+    const user2_profile_picture = friend.self_id == profile.id ? friend.recipient_profile_picture : friend.self_profile_picture;
   
     const postConversation = async () => {
       const response = await fetch('/api/conversations', {
@@ -109,7 +119,6 @@ function Conversations({ profile }) {
         }),
       });
       if (response.ok) {
-        console.log('Conversation started');
         getConvos();
         getMessages();
         openModal();
@@ -130,8 +139,6 @@ function Conversations({ profile }) {
     openModal();
   }
   
-  console.log(otherUserProfile)
-
   const closeConversationModal = () => {
     setSelectedConversation(null);
     closeModal();
@@ -174,14 +181,13 @@ function Conversations({ profile }) {
       }),
     });
     if (response.ok) {
+      getConvos();
       getMessages(selectedConversation.id);
       setMessageInput("");
     } else {
       console.error('Failed to send message');
     }
   }
-
-  console.log(filteredFriends)
 
   const userConversations = conversations.filter(conversation => conversation.self_id === profile.id || conversation.other_user_id === profile.id);
 
@@ -213,7 +219,7 @@ function Conversations({ profile }) {
                 <div className="dropdown">
                   {filteredFriends.map((friend, index) => {
                     const friendName = friend.sender_name.toLowerCase() === profile.name.toLowerCase() ? friend.recipient_name : friend.sender_name;
-                    const friendPfp = friend.sender_name.toLowerCase() === profile.name.toLowerCase() ? friend.recipient_profile_picture : friend.sender_profile_picture;
+                    const friendPfp = friend.sender_name.toLowerCase() === profile.name.toLowerCase() ? friend.recipient_profile_picture : friend.self_profile_picture;
                     return (
                       <div key={friend.id} className="dropdown-item" onClick={() => startConversation(friendName, friend.id)}>
                         <img src={`data:image/jpeg;base64,${friendPfp}`} alt="Profile" className="friend-profile-picture" />
@@ -236,8 +242,19 @@ function Conversations({ profile }) {
               const otherUser = conversation.self_id === profile.id ? conversation.other_user_name : conversation.self_name;
               return (
                 <div key={conversation.id} className="conversation-item" onClick={() => openConversationModal(conversation)}>
-                  <h3>{otherUser}</h3>
-                  <p>{conversation.last_message}</p>
+                  <img src={conversation.self_id === profile.id ? `data:image/jpeg;base64,${conversation.other_user_profile_picture}` : `data:image/jpeg;base64,${conversation.self_profile_picture}`} alt="Profile" className="conversation-profile-pic" />
+                  <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
+                    <h3 style={{marginBottom: '0'}}>{otherUser}</h3>
+                    <p style={{marginTop: '0'}}>{lastMessages[conversation.id]?.last_message.self_id == profile.id ? 'You' : conversation.other_user_name}: {lastMessages[conversation.id]?.last_message.content}</p>
+                  </div>
+                    <p>{
+                      new Date(lastMessages[conversation.id]?.last_message.created_at).toLocaleString('en-US', {
+                        month: 'long', 
+                        day: 'numeric', 
+                        hour: 'numeric', 
+                        minute: 'numeric'
+                      })
+                    }</p>
                 </div>
               );
             })

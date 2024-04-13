@@ -99,11 +99,36 @@ const requesterInfo = async (request) => {
   return data;
 }
 
+  const reformatCreatedAt = (date) => {
+    const dateObj = new Date(date);
+    const month = dateObj.toLocaleString('default', { month: 'long' });
+    const day = dateObj.getDate();
+    const year = dateObj.getFullYear();
+    return `${month} ${day}, ${year}`;
+  }
 
   const mappedFriends = friends.map((friend) => {
+    console.log(friend)
+    console.log(friend.self_profile_picture)
+    console.log(friend.recipient_profile_picture)
+    console.log(profile.id)
+    console.log(friend.self_id)
+    console.log(friend.self_id === profile.id ? true : false)
     return (
       <div key={friend.id} className='friend'>
-        <h3>{friend.sender_name === profile.name ? friend.recipient_name : friend.sender_name}</h3>
+      <img 
+        src={
+          ((friend.self_id === profile.id) ? friend.recipient_profile_picture : friend.self_profile_picture) 
+          ? `data:image/jpeg;base64,${friend.self_id === profile.id ? friend.recipient_profile_picture : friend.self_profile_picture}` 
+          : 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_640.png'
+        } 
+        alt='profile picture' 
+        className='friend-profile-picture-friends-tab'
+      />
+      <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+        <h2>{friend.sender_name === profile.name ? friend.recipient_name : friend.sender_name}</h2>
+        <p>Friends since {reformatCreatedAt(friend.added_at)}</p>
+      </div>
         <a href='#' onClick={() => deleteFriend(friend)}>Remove friend</a>
       </div>
     )

@@ -100,21 +100,12 @@ border-radius: 10px;
 
 
 .feed-header {
-background-color: #f8f9fa;
-padding: 10px;
-padding-top: 93px;
-margin-top: -50px;
+margin-top: 42px;
+margin-bottom: 0;
+padding: 20px;
 text-align: center;
 position: inherit;
-border-bottom: 1px solid #dee2e6;
 }
-
-.feed-header h1 {
-margin: 0;
-font-size: 2em;
-color: #343a40;
-}
-
 
 .posts-container {
 display: flex;
@@ -133,13 +124,16 @@ background-color: red;
 }
 
 .delete-post-feed-button {
-position:relative;
-top: 0;
-right: 0;
-width: 25px;
-height: 25px;
-border-radius: 20px;
+    margin-top: 10px;
+    padding: 2px;
+}
+
+.delete-post-feed-button:hover {
+text-decoration: underline;
+color: rgb(255, 255, 255);
 background-color: red;
+padding: 2px;
+border-radius: 10px;
 }
 
 .delete-comment-button {
@@ -299,15 +293,18 @@ margin-top: 15px;
 padding: 5px;
 border-radius: 5px;
 border: none;
-background-color: #0a3d7e;
+background-color: #79899e;
 color: white;
 cursor: pointer;
 margin-top: 50px;
 }
 
-.new-post-button:hover,
-.close-button:hover {
+.new-post-button:hover {
 background-color: #0e5a8a;
+}
+
+.close-button:hover {
+background-color: #ff6d6a;
 }
 
 .login-form-container {
@@ -602,6 +599,7 @@ justify-content: center;
 text-align: center;
 font-size: 1.4em;
 max-width: 400px;
+margin-top: 10px;
 }
 
 .content-header p {
@@ -611,6 +609,8 @@ margin-bottom: 30px;
 
 .post-pic {
 height: 40vh;
+max-width: 40vh;
+object-fit: cover;
 border-radius: 15px;
 margin-bottom: 20px;
 cursor: pointer;
@@ -640,6 +640,7 @@ width: 50px;
 height: 50px;
 border-radius: 50%;
 margin-right: 20px;
+object-fit: cover;
 }
 
 .profile-post-modal-image-comments {
@@ -879,6 +880,13 @@ border-radius: 50%;
 margin-right: 10px;
 }
 
+.friend-profile-picture-friends-tab {
+height: 50px;
+width: 50px;
+border-radius: 50%;
+object-fit: cover;
+}
+
 .friend-name {
 font-size: 16px;
 }
@@ -892,12 +900,20 @@ height: 90%;
 
 .conversation-item {
 border: 1px solid #ccc;
-border-radius: 5px;
+border-radius: 10px;
 padding: 10px;
 width: 70%;
 margin-bottom: 10px;
+background-color: rgb(236, 236, 236);
 cursor: pointer;
 text-align: center;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.conversation-item:hover {
+background-color: rgb(220, 220, 220);
 }
 
 .conversation-profile-pic {

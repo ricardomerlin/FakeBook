@@ -49,6 +49,17 @@ function NewPost({ profile }) {
         }
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        setImage(file);
+    
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviewImage(reader.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleClose = () => {
         navigate('/feed');
     };
@@ -64,10 +75,10 @@ function NewPost({ profile }) {
                 <p style={{paddingTop:'0'}}>Characters remaining: {remainingChars}</p>
                 Attach your image:
                 <label style={{display:'flex', alignItems:'center'}}>
-                    <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
+                    <input type="file" accept="image/*" onChange={handleImageChange} />
                 </label>
                 {previewImage ? (
-                    <img src={previewImage} alt="Preview" style={{width: '200px', marginTop: '20px'}} />
+                    <img src={previewImage} alt="Preview" style={{width: '200px', marginTop: '20px', borderRadius: '20px'}}/>
                 ) : (
                     <div style={{width: '200px', height: '200px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '20px'}}>
                         Preview image here!
