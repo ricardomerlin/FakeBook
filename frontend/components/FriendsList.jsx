@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import OtherUser from './OtherUser';
 
-function FriendsList({ profile }) {
+function FriendsList({ profile, friends, getFriends }) {
   const [newRequests, setNewRequests] = useState([]);
-  const [friends, setFriends] = useState([]);
+  const [otherUserId, setOtherUserId] = useState(0);
   
   useEffect(() => {
     getFriendRequests();
-    getFriends();
+    if (friends.length === 0) {
+      getFriendsFromApp();
+    }
   }, []);
   
   const getFriendRequests = async () => {
@@ -23,18 +26,6 @@ function FriendsList({ profile }) {
     console.log('done')
   }
   
-  const getFriends = async () => {
-    const response = await fetch('/api/friends');
-    const data = await response.json();
-    let friends = [];
-    for (let i = 0; i < data.length; i++) {
-      if ((data[i].self_id === profile.id || data[i].recipient_id === profile.id) && data[i].accepted === true) {        
-        friends.push(data[i]);
-      }
-    }
-    setFriends(friends);
-    getFriendRequests();
-  }
   
   const acceptFriendRequest = async (request) => {
     const response = await fetch(`/api/friends/${request.id}`, {
@@ -48,10 +39,14 @@ function FriendsList({ profile }) {
     });
     if (response.ok) {
       getFriendRequests();
-      getFriends();
+      getFriendsFromApp();
     } else {
       console.log('Error accepting friend request');
     }
+  }
+
+  const getFriendsFromApp = async () => {
+    getFriends()
   }
   
   const declineFriendRequest = async (request) => {
@@ -70,7 +65,7 @@ function FriendsList({ profile }) {
       method: 'DELETE'
     });
     if (response.ok) {
-      getFriends();
+      getFriendsFromApp();
     } else {
       console.log('Error deleting friend');
     }
@@ -79,7 +74,7 @@ function FriendsList({ profile }) {
 const mappedFriendRequests = newRequests.map((request) => {
   return (
     <div key={request.id} className='friend-request'>
-      <h3>{request.sender_name}</h3>
+      <h3 onClick={() => handleOpenOtherUser(request.self_id === profile.id ? request.other_user_id : request.self_id)}>{request.sender_name}</h3>
       <div className='friend-request-actions'>
         <a href='#' className='accept-button' onClick={() => acceptFriendRequest(request)}>Accept</a>
         <a href='#' className='decline-button' onClick={() => declineFriendRequest(request)}>Decline</a>
@@ -87,12 +82,6 @@ const mappedFriendRequests = newRequests.map((request) => {
     </div>
   )
 })
-
-const requesterInfo = async (request) => {
-  const requester = await fetch(`/api/profiles/${request.sender_id}`)
-  const data = await requester.json();
-  return data;
-}
 
   const reformatCreatedAt = (date) => {
     const dateObj = new Date(date);
@@ -115,7 +104,7 @@ const requesterInfo = async (request) => {
         className='friend-profile-picture-friends-tab'
       />
       <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
-        <h2>{friend.sender_name === profile.name ? friend.recipient_name : friend.sender_name}</h2>
+        <h2 className='friend-name-header' onClick={() => handleOpenOtherUser(friend.self_id === profile.id ? friend.other_user_id : friend.self_id)}>{friend.self_id === profile.id ? friend.recipient_name : friend.sender_name}</h2>
         <p>Friends since {reformatCreatedAt(friend.added_at)}</p>
       </div>
         <a href='#' onClick={() => deleteFriend(friend)}>Remove friend</a>
@@ -123,6 +112,16 @@ const requesterInfo = async (request) => {
     )
   })
 
+  const handleOpenOtherUser = (userId) => {
+    if (userId === profile.id) {
+        return;
+    }
+    setOtherUserId(userId);
+  };
+
+  const handleCloseOtherUser = () => {
+      setOtherUserId(0);
+  };
 
   return (
     <div>
@@ -141,6 +140,12 @@ const requesterInfo = async (request) => {
           {mappedFriends}
         </div>
       </div>
+      <OtherUser
+                isOpen={otherUserId > 0}
+                otherUserId={otherUserId}
+                profile={profile}
+                onClose={handleCloseOtherUser}
+      />
     </div>
   );
 }

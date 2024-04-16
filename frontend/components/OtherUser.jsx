@@ -107,7 +107,7 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
         <div className='profile-background'></div>
         <div className="profile-container">
           <h2 className="profile-title" style={{marginBottom:'5px'}}>{otherUser.name}</h2>
-          <h2 style={{textAlign:'center', marginTop: '0'}} className="profile-username">Username: {otherUser.username}</h2>
+          <h2 className="profile-username">Username: {otherUser.username}</h2>
           <div className="profile-content">
             <img className="profile-avatar" src={`data:image/jpeg;base64,${otherUser.profile_picture}`} alt="user avatar" />
             <p className='profile-birthday'>Born on {reformatBirthday(otherUser.birthday)}</p>
@@ -115,7 +115,7 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
             <p className="profile-bio">{otherUser.description}</p>
             {requestStatus == 1 ? <h3>Friend request sent! <button onClick={removeFriend}>Unsend</button></h3> : requestStatus == 0 ? <button className='friend-request' onClick={addFriend}>Send Friend Request</button> : requestStatus == 3 ? <h3>You and {otherUser.name} are already friends.</h3> : <h3>{otherUser.name} sent you a friend request! Check your requests!</h3>}
           </div>
-          <button onClick={onClose}>Close</button>
+          <button className='close-other-user' onClick={onClose} style={{marginTop: '10px', fontSize: '15px', borderRadius: '10px', backgroundColor: ''}}>Close</button>
         </div>
       </div>
       )}

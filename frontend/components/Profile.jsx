@@ -43,6 +43,7 @@ function Profile({ profile }) {
         <p className='profile-birthday'>Born on {reformatBirthday(profile.birthday)}</p>
         <p className="profile-email">Email Address: {profile.email}</p>
         <p className="profile-bio">{profile.description}</p>
+        <h2 style={{textAlign: 'center', fontSize: '11px'}}>Need to make changes to your profile?<br/><a href='#' style={{margin: '10px'}}>Edit your profile here.</a></h2>
         {posts.length == 0 ? null : <h3>Click on an image to view your post!</h3>}
         <div className='profile-posts-container'>
         {posts.length == 0 ?

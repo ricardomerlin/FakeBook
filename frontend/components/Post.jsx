@@ -157,10 +157,6 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
         }
     };
 
-    const goProfile = () => {
-        navigate('/profile');
-    }
-
     const reformatPostDate = () => {
         const dateObject = new Date(post.created_at);
         const options = { year: 'numeric', month: 'long', day: 'numeric' };

@@ -48,25 +48,35 @@ z-index: -1;
 }
 
 .profile-container {
-width: 60%;
+width: 70%;
+height: 70%;
 margin: 80px auto;
 border: 1px solid #ddd;
 background-color: #fff;
 border-radius: 20px;
 padding: 20px;
 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+display: flex;
+flex-direction: column;
+align-items: center;
 }
 
 .profile-title {
 text-align: center;
 color: #333;
-font-size: 2em;
+font-size: 25px;
+}
+
+.profile-username {
+text-align: center;
+margin: 10px;
 }
 
 .profile-content {
 display: flex;
 flex-direction: column;
 align-items: center;
+margin-top: 20px;
 }
 
 .custom-file-upload {
@@ -100,8 +110,8 @@ border: 2px solid #8fc1ed;
 }
 
 .profile-avatar {
-width: 200px;
-height: 200px;
+width: 300px;
+height: 300px;
 border-radius: 50%;
 object-fit: cover;
 }
@@ -113,11 +123,23 @@ object-fit: cover;
 .profile-bio {
 font-size: 1.2em;
 color: #333;
-margin: 10px 0;
+margin: 25px 0;
 }
 
 .profile-bio {
 text-align: center;
+}
+
+.close-other-user {
+margin-top: 10px;
+font-size: 15px;
+border-radius: 10px;
+background-color: rgb(132, 132, 254);
+color: white;
+}
+
+.close-other-user:hover {
+background-color: rgb(86, 124, 196);
 }
 
 .dog-image {
@@ -185,8 +207,9 @@ overflow: hidden;
 .like-button {
 padding: 0.5vw;
 border-radius: 0.5vw;
-border: 0.2vw solid #4CAF50;
-background-color: #c4ffc6;
+border: 0.2vw solid #5ea0b6;
+background-color: #d1eeff;
+font-size: 12px;
 cursor: pointer;
 }
 
@@ -195,9 +218,11 @@ position:inherit;
 bottom: 5vw;
 padding: 0.5vw;
 border-radius: 0.5vw;
-border: 0.2vw solid #ff7b71;
-background-color: #ffbab5;
+border: 0.2vw solid #1e05ff;
+background-color: #2877ff;
 cursor: pointer;
+font-size: 12px;
+color: white;
 }
 
 .modal {
@@ -216,6 +241,8 @@ background-color: rgba(0, 0, 0, 0.4);
 margin: auto;
 display: block;
 height: 70%;
+border-radius: 30px;
+border: 20px solid #4451ff;
 }
 
 .modal-overlay,
@@ -575,7 +602,7 @@ margin-bottom: 15px;
 }
 
 .create-profile-button button {
-    font-size: 12px;
+font-size: 12px;
 }
 
 .back-button {
@@ -657,13 +684,12 @@ justify-content: center;
 
 
 .profile-post-feed-display-item {
-width: 150px;
+/* width: 150px; */
 height: 150px;
-border-radius: 30px;
 display: flex;
 flex-direction: column;
 align-items: center;
-margin-top: 10px
+margin-top: 10px;
 }
 
 .comments-container-modal {
@@ -770,6 +796,8 @@ max-width: 150px;
 max-height: 150px;
 border-radius: 10px;
 margin-bottom: 10px;
+cursor: pointer;
+border: 3px solid #2d2d2d;
 }
 
 .profile-post-pic-modal {
@@ -813,6 +841,10 @@ display: flex;
 flex-direction: column;
 width: 300px;
 font-size: 12px;
+}
+
+.comments-container input {
+font-size: 14px;
 }
 
 .comments-container-modal-close-modal-button {
@@ -881,6 +913,7 @@ padding: 10px;
 margin-bottom: 10px;
 background-color: #fff;
 border-radius: 5px;
+border: 2px solid #8d97ff;
 box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -890,12 +923,15 @@ justify-content: space-between;
 align-items: center;
 border: 2px solid #ccc;
 border-radius: 5px;
-padding: 3px;
-cursor: pointer;
+padding: 5px;
+padding-left: 15px;
+padding-right: 15px;
 }
 
-.friend-request:hover {
-background-color: #c1c1c1;
+.friend-request h3:hover {
+cursor: pointer;
+text-decoration: hover;
+color: rgb(123, 123, 255);
 }
 
 .friend-request-actions {
@@ -904,17 +940,29 @@ display: flex;
 
 .accept-button {
 color: white;
-background-color: lightgreen;
+background-color: rgb(91, 206, 91);
 margin-right: 10px;
 padding: 5px 10px;
 text-decoration: none;
+cursor: pointer;
+border-radius: 5px;
+}
+
+.accept-button:hover {
+background-color: green;
 }
 
 .decline-button {
 color: white;
-background-color: lightcoral;
+background-color: rgb(240, 107, 107);
 padding: 5px 10px;
 text-decoration: none;
+cursor: pointer;
+border-radius: 5px;
+}
+
+.decline-button:hover {
+background-color: red;
 }
 
 .friends-list {
@@ -922,6 +970,14 @@ display: flex;
 flex-direction: column;
 height: 80vh;
 overflow-y: auto;
+}
+
+.friend-name-header {
+cursor: pointer;
+}
+
+.friend-name-header:hover {
+text-decoration: underline;
 }
 
 .friend-requests-container {
@@ -938,8 +994,18 @@ align-items: center;
 }
 
 .new-message-button {
-margin-right: 10px;
+padding: 10px;
+border-radius: 5px;
+background-color: #dee4ff;
+border: 2px solid #4465ad;
 }
+
+.new-message-button:hover {
+background-color: #4465ad;
+color: white;
+cursor: pointer;
+}
+
 
 .search-input {
 width: 300px;
@@ -1016,8 +1082,8 @@ background-color: rgb(220, 220, 220);
 }
 
 .conversation-profile-pic {
-width: 30px;
-height: 30px;
+width: 40px;
+height: 40px;
 border-radius: 50%;
 }
 

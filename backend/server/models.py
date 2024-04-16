@@ -59,6 +59,8 @@ class Conversation(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<Conversation {self.id}>'
+    
+    # On send, I should also submit a patch request to update the last message in the conversation. IMPLEMENT EVENTUALLY.
 
 class Message(db.Model, SerializerMixin):
     __tablename__ = 'message_table'

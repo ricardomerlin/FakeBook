@@ -17,14 +17,29 @@ function App() {
     const [creatingProfile, setCreatingProfile] = useState(false);
     const [allComments, setAllComments] = useState([]);
     const [comments, setComments] = useState([]);
+    const [posts, setPosts] = useState([]);
     const [post, setPost] = useState(null);
+    const [friends, setFriends] = useState([]);
+    const [allMessages, setAllMessages] = useState([]);
 
     useEffect(() => {
       fetchComments();
       checkSession();
+      fetchFriends();
+      fetchPosts();
     }, []);
 
-    console.log(creatingProfile)
+    console.log(friends)
+  
+    useEffect(() => {
+      if (profId) {
+        fetch(`/api/profiles/${profId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setProfile(data);
+        });
+      }
+    }, [profId]);
 
     const checkSession = async () => {
       console.log('I am checking session')
@@ -47,15 +62,6 @@ function App() {
         setPost(post)
     }
 
-    useEffect(() => {
-      if (profId) {
-        fetch(`/api/profiles/${profId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setProfile(data);
-        });
-      }
-    }, [profId]);
 
     const handleLogin = async (username, password) => {
       const response = await fetch('/api/login', {
@@ -109,6 +115,33 @@ function App() {
       setAllComments(data);
   };
 
+    const fetchFriends = async () => {
+      const response = await fetch('/api/friends');
+      const data = await response.json();
+      let friends = [];
+      for (let i = 0; i < data.length; i++) {
+        if ((data[i].self_id === profile.id || data[i].recipient_id === profile.id) && data[i].accepted === true) {        
+          friends.push(data[i]);
+        }
+      }
+      setFriends(friends);
+    }
+
+
+
+    const fetchPosts = async () => {
+      const response = await fetch('/api/posts');
+      const data = await response.json();
+      const sortedPosts = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      setPosts(sortedPosts);
+  };
+
+  const fetchAllMessages = async () => {
+    const response = await fetch('/api/messages');
+    const data = await response.json();
+    setAllMessages(data);
+  }
+
   return (
     <Router>
       {profile ? (
@@ -123,8 +156,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} handlePostAndComments={handlePostAndComments}/>} />
             <Route path="/profile" element={<Profile profile={profile} />} />
-            <Route path="/feed" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} handlePostAndComments={handlePostAndComments}/>} />
-            <Route path="/friends-list" element={<FriendsList profile={profile} />} />
+            <Route path="/feed" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} posts={posts} fetchPosts={fetchPosts} allMessages={allMessages} fetchAllMessages={fetchAllMessages} handlePostAndComments={handlePostAndComments}/>} />
+            <Route path="/friends-list" element={<FriendsList profile={profile} friends={friends} getFriends={fetchFriends}/>} />
             <Route path='/new-post' element={<NewPost profile={profile}/>} />
             <Route path='/extended-comments' element={<ExtendedComments profile={profile} comments={comments} post={post}/>} />
             <Route path='/conversations' element={<Conversations profile={profile} />} />

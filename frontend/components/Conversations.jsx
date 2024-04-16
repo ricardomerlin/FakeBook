@@ -4,7 +4,7 @@ import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
 
-function Conversations({ profile }) {
+function Conversations({ profile, allMessages, fetchAllMessages }) {
   const [conversations, setConversations] = useState([]);
   const [initiatingConvo, setInitiatingConvo] = useState(false);
   const [searchedFriend, setSearchedFriend] = useState(null);
@@ -15,13 +15,10 @@ function Conversations({ profile }) {
   const [messageInput, setMessageInput] = useState("");
   const [userMessages, setUserMessages] = useState([]);
   const [otherUserProfile, setOtherUserProfile] = useState(null);
-  const [allMessages, setAllMessages] = useState([]);
   const [lastMessages, setLastMessages] = useState({});
 
   useEffect(() => {
     getConvos();
-    getFriends();
-    getMessages();
   }, []);
 
   useEffect(() => {
@@ -56,27 +53,33 @@ function Conversations({ profile }) {
     setLastMessages(lastMessages);
   }
 
-  const getMessages = async () => {
-    const response = await fetch('/api/messages');
-    const data = await response.json();
-    setAllMessages(data);
-  }
-
-  const getFriends = async () => {
-    const response = await fetch('/api/friends');
-    const data = await response.json();
-    setFriends(data);
+  const getAllMessagesFromApp = async () => {
+    fetchAllMessages();
   }
 
   const filterFriends = () => {
     const searchResults = friends.filter(friend => {
-        if (friend.accepted === false) return false;
-        const lowerCaseSearchedFriend = searchedFriend.toLowerCase();
-        return (friend.sender_name.toLowerCase().includes(lowerCaseSearchedFriend) || 
-                friend.recipient_name.toLowerCase().includes(lowerCaseSearchedFriend));
+      if (friend.accepted === false) return false;
+      const lowerCaseSearchedFriend = searchedFriend.toLowerCase();
+  
+      const existingConversation = conversations.find(conversation => {
+        return (
+          (conversation.self_id === profile.id && conversation.other_user_id === friend.id) ||
+          (conversation.self_id === friend.id && conversation.other_user_id === profile.id)
+        );
+      });
+  
+      if (existingConversation) return false;
+  
+      return (
+        friend.sender_name.toLowerCase().includes(lowerCaseSearchedFriend) ||
+        friend.recipient_name.toLowerCase().includes(lowerCaseSearchedFriend)
+      );
     });
+  
     setFilteredFriends(searchResults);
   }
+  
 
   const filterMessages = (conversationId) => {
     const messages = allMessages.filter(message => message.conversation_id === conversationId);
@@ -117,9 +120,11 @@ function Conversations({ profile }) {
       });
       if (response.ok) {
         getConvos();
-        getMessages();
+        getAllMessagesFromApp();
         openModal();
         setSelectedConversation(response.data);
+        setSearchedFriend(null);
+        setInitiatingConvo(false);
       } else {
         console.error('Failed to start conversation');
       }
@@ -209,7 +214,7 @@ function Conversations({ profile }) {
                 placeholder="Search for a friend..."
                 className="search-input"
               />
-              <button onClick={() => {
+              <button style={{padding: '5px', borderRadius: '5px'}} onClick={() => {
                 setInitiatingConvo(false);
                 setSearchedFriend(null);
               }}>Cancel</button>
@@ -241,18 +246,18 @@ function Conversations({ profile }) {
               return (
                 <div key={conversation.id} className="conversation-item" onClick={() => openConversationModal(conversation)}>
                   <img src={conversation.self_id === profile.id ? `data:image/jpeg;base64,${conversation.other_user_profile_picture}` : `data:image/jpeg;base64,${conversation.self_profile_picture}`} alt="Profile" className="conversation-profile-pic" />
-                  <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
-                    <h3 style={{marginBottom: '0'}}>{otherUser}</h3>
-                    <p style={{marginTop: '0'}}>
-                        {lastMessages[conversation.id]?.last_message ? 
-                            <>
-                                <strong>
-                                    {lastMessages[conversation.id].last_message.self_id === profile.id ? conversation.other_user_name : 'You'}
-                                </strong>
-                                {': '}
-                                {lastMessages[conversation.id].last_message.content}
-                            </>
-                            : 'No messages'}
+                  <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '50%'}}>
+                    <h3 style={{marginBottom: '0', fontSize: '14px'}}>{otherUser}</h3>
+                    <p style={{marginTop: '8px', fontSize: '10px'}}>
+                    {lastMessages[conversation.id]?.last_message ? 
+                    <>
+                        <strong>
+                            {lastMessages[conversation.id].last_message.sender_id === profile.id ? 'You' : conversation.other_user_name}
+                        </strong>
+                        {': '}
+                        {lastMessages[conversation.id].last_message.content}
+                    </>
+                    : 'No messages'}
                     </p>
                   </div>
                   <p>

@@ -2,40 +2,26 @@ import React, { useEffect, useState } from 'react';
 import Post from './Post';
 import { useNavigate } from 'react-router-dom';
 
-function Feed({ profile, fetchComments, comments, allComments, handlePostAndComments }) {
-    const [posts, setPosts] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+function Feed({ profile, fetchComments, comments, posts, fetchPosts, checkLoading, allComments, handlePostAndComments }) {
     const [loadingMessage, setLoadingMessage] = useState('Loading...');
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchPosts();
         fetchComments();
+        getPostsFromApp();
         document.body.style.overflow = 'auto';
     }, []);
 
-    useEffect(() => {
-        if (isLoading) {
-            const timer = setInterval(() => {
-                setLoadingMessage(prev => prev === 'Loading...' ? 'Loading..' : 'Loading...');
-            }, 1000);
-            return () => clearInterval(timer);
-        }
-    }, [isLoading]);
-
-    const fetchPosts = async () => {
-        setIsLoading(true);
-        const response = await fetch('/api/posts');
-        const data = await response.json();
-        const sortedPosts = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        setPosts(sortedPosts);
-        setIsLoading(false);
-    };
+    const getPostsFromApp = async () => {
+        fetchPosts();
+    }
 
     const travelNewPost = () => {
         navigate('/new-post');
     };
+
+
 
     return (
         <div>
@@ -44,9 +30,7 @@ function Feed({ profile, fetchComments, comments, allComments, handlePostAndComm
                 <h1 className='feed-header'>Main Feed</h1>
                 <button className="floating-button" onClick={travelNewPost}>New Post</button>
                 <div className='posts-container'>
-                    {isLoading ? (
-                        <h1 style={{marginTop: '50px', fontSize:'50px'}}>{loadingMessage}</h1>
-                    ) : posts.length === 0 ? (
+                    {posts.length === 0 ? (
                         <div className="empty-feed">
                             <h2>Be the first to post some of your favorite images!</h2>
                             <p>Share your thoughts, ideas, and moments with the world.</p>
