@@ -21,12 +21,15 @@ function App() {
     const [post, setPost] = useState(null);
     const [friends, setFriends] = useState([]);
     const [allMessages, setAllMessages] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
 
     useEffect(() => {
       fetchComments();
       checkSession();
       fetchFriends();
       fetchPosts();
+      fetchAllMessages();
+      fetchAllUsers();
     }, []);
 
     console.log(friends)
@@ -127,6 +130,12 @@ function App() {
       setFriends(friends);
     }
 
+    const fetchAllUsers = async () => {
+      const response = await fetch('/api/profiles');
+      const data = await response.json();
+      setAllUsers(data);
+    }
+
 
 
     const fetchPosts = async () => {
@@ -157,7 +166,7 @@ function App() {
             <Route path="/" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} handlePostAndComments={handlePostAndComments}/>} />
             <Route path="/profile" element={<Profile profile={profile} />} />
             <Route path="/feed" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} posts={posts} fetchPosts={fetchPosts} allMessages={allMessages} fetchAllMessages={fetchAllMessages} handlePostAndComments={handlePostAndComments}/>} />
-            <Route path="/friends-list" element={<FriendsList profile={profile} friends={friends} getFriends={fetchFriends}/>} />
+            <Route path="/friends-list" element={<FriendsList profile={profile} friends={friends} allUsers={allUsers} getFriends={fetchFriends}/>} />
             <Route path='/new-post' element={<NewPost profile={profile}/>} />
             <Route path='/extended-comments' element={<ExtendedComments profile={profile} comments={comments} post={post}/>} />
             <Route path='/conversations' element={<Conversations profile={profile} />} />
