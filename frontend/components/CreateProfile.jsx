@@ -9,18 +9,17 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
     const [birthday, setBirthday] = useState('');
     const [profilePicture, setProfilePicture] = useState(null);
     const [description, setDescription] = useState('');
+    const [imageUploaded, setImageUploaded] = useState(false);
 
     const [confirmPassword, setConfirmPassword] = useState('')
 
     const navigate = useNavigate();
 
-    console.log(profilePicture)
-
     const goToFeed = () => {
         navigate('/feed');
     }
 
-    const handleLoginSubmit = async () => {
+    const handleLoginSubmit = () => {
         checkCreatingProfile(false);
         onLogin(username, password);
         goToFeed();
@@ -32,6 +31,11 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
 
     const cancelCreateProfile = () => {
         checkCreatingProfile(false);
+    }
+
+    const handleImageUpload = (e) => {
+        setProfilePicture(e.target.files[0]);
+        setImageUploaded(true);
     }
 
     const submitNewProfile = async (event) => {
@@ -57,15 +61,13 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
         
         if (response.ok) {
             const data = await response.json();
-            checkCreatingProfile(false);
+            cancelCreateProfile();
             handleLoginSubmit();
 
         } else {
             console.error('Failed to create profile');
         }
     }
-    
-    console.log(profilePicture)
 
     return (
     <div>
@@ -97,15 +99,18 @@ function CreateProfile({ checkCreatingProfile, onLogin }) {
             Birthday:
             <input type="date" name="birthday" value={birthday} onChange={(e) => setBirthday(e.target.value)} />
             </label>
-            <label>
-            Profile Picture:
-            <input type="file" accept="image/*" onChange={(e) => setProfilePicture(e.target.files[0])} />
-            </label>
-            <label>
-            Description:
+            <div style={{display: 'flex', justifyContent: 'center', marginTop: '10px'}}>
+                <label className='custom-file-upload-new-profile'>
+                Upload your profile picture here
+                <input type="file" accept="image/*" onChange={handleImageUpload} style={{display: 'none'}}/>
+                </label>
+            </div>
+            {imageUploaded && <p style={{textAlign: 'center', marginTop: '-5px', marginBottom: '20px'}}>Image uploaded successfully!</p>}
+            <label style={{marginTop: '10px'}}>
+            Tell us about yourself (hobbies? interests? favorite teams?):
             <textarea name="description" value={description} onChange={(e) => setDescription(e.target.value)} />
             </label>
-            <div className='create-profile-buttons'>
+            <div className='create-profile-button'>
                 <button type="submit">Create Profile</button>
             </div>
         </form>

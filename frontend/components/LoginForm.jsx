@@ -10,14 +10,12 @@ function LoginForm({ onLogin, loginError, checkCreatingProfile }) {
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
-        console.log('login form submitted')
         event.preventDefault();
         onLogin(username, password);
         goToFeed();
     };
 
     const goToFeed = () => {
-        console.log('I am going to the feed')
         navigate('/feed');
     }
 
@@ -32,23 +30,23 @@ function LoginForm({ onLogin, loginError, checkCreatingProfile }) {
     return (
         <div className="login-form-container">
             <h2>Welcome to FakeBook!</h2>
-            <p>Please login to your account to continue, or create an account if you don't have one yet..</p>
+            <p>Enter the world of FakeBook by logging into your account. Connect with friends, share your moments, and discover what's happening around the world.</p>
             <form onSubmit={handleSubmit} className="login-form">
                 <label className='login-input-container'>
-                    Username:
+                    <span className="login-label">Username:</span>
                     <input type="text" className="login-input" value={username} onChange={(e) => setUsername(e.target.value)} />
                 </label>
                 <label className='login-input-container'>
-                    Password:
+                    <span className="login-label">Password:</span>
                     <input type={isPasswordVisible ? "text" : "password"} className="login-input" value={password} onChange={(e) => setPassword(e.target.value)} />
                     <button type="button" className='showpassword-button' onClick={togglePasswordVisibility}>
                         {isPasswordVisible ? 'Hide password' : 'Show password'}
                     </button>
                 </label>
-                <button type="submit" className="login-button">Log in</button>
+                <button type="submit" className="login-button">Sign in</button>
             </form>
-            {loginError ? <p style={{color:'red'}}>Username or password do not match known account.</p> : null}
-            <h3>Don't have an account? <a className='signup-account-button' onClick={goToCreateProfile}>Sign up here!</a></h3>
+            {loginError ? <p className="login-error">Oops! The username or password you entered doesn't match our records. Please try again.</p> : null}
+            <h3>New to FakeBook? <button className='signup-account-button' onClick={goToCreateProfile}>Create your account and start your journey!</button></h3>
         </div>
     );
 }

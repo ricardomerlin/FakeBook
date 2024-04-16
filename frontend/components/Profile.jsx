@@ -8,8 +8,6 @@ function Profile({ profile }) {
 
   const navigate = useNavigate();
 
-  console.log(posts)
-
   useEffect(() => {
     fetchPosts();
   }, [profile]);

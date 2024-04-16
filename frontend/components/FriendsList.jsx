@@ -8,11 +8,6 @@ function FriendsList({ profile }) {
     getFriendRequests();
     getFriends();
   }, []);
-
-  console.log(profile)
-  console.log(newRequests)
-  console.log(friends)
-
   
   const getFriendRequests = async () => {
     const response = await fetch('/api/friends');
@@ -108,12 +103,6 @@ const requesterInfo = async (request) => {
   }
 
   const mappedFriends = friends.map((friend) => {
-    console.log(friend)
-    console.log(friend.self_profile_picture)
-    console.log(friend.recipient_profile_picture)
-    console.log(profile.id)
-    console.log(friend.self_id)
-    console.log(friend.self_id === profile.id ? true : false)
     return (
       <div key={friend.id} className='friend'>
       <img 

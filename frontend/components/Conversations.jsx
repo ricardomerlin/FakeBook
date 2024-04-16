@@ -56,9 +56,6 @@ function Conversations({ profile }) {
     setLastMessages(lastMessages);
   }
 
-
-  console.log(lastMessages[1]?.last_message.content)
-
   const getMessages = async () => {
     const response = await fetch('/api/messages');
     const data = await response.json();
@@ -73,10 +70,10 @@ function Conversations({ profile }) {
 
   const filterFriends = () => {
     const searchResults = friends.filter(friend => {
-      if (friend.accepted === false) return false;
-      return friend.sender_name.toLowerCase() == profile.name 
-        ? friend.sender_name.toLowerCase().includes(searchedFriend.toLowerCase())
-        : friend.recipient_name.toLowerCase().includes(searchedFriend.toLowerCase()) 
+        if (friend.accepted === false) return false;
+        const lowerCaseSearchedFriend = searchedFriend.toLowerCase();
+        return (friend.sender_name.toLowerCase().includes(lowerCaseSearchedFriend) || 
+                friend.recipient_name.toLowerCase().includes(lowerCaseSearchedFriend));
     });
     setFilteredFriends(searchResults);
   }
@@ -122,6 +119,7 @@ function Conversations({ profile }) {
         getConvos();
         getMessages();
         openModal();
+        setSelectedConversation(response.data);
       } else {
         console.error('Failed to start conversation');
       }
@@ -245,16 +243,28 @@ function Conversations({ profile }) {
                   <img src={conversation.self_id === profile.id ? `data:image/jpeg;base64,${conversation.other_user_profile_picture}` : `data:image/jpeg;base64,${conversation.self_profile_picture}`} alt="Profile" className="conversation-profile-pic" />
                   <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
                     <h3 style={{marginBottom: '0'}}>{otherUser}</h3>
-                    <p style={{marginTop: '0'}}>{lastMessages[conversation.id]?.last_message.self_id == profile.id ? 'You' : conversation.other_user_name}: {lastMessages[conversation.id]?.last_message.content}</p>
+                    <p style={{marginTop: '0'}}>
+                        {lastMessages[conversation.id]?.last_message ? 
+                            <>
+                                <strong>
+                                    {lastMessages[conversation.id].last_message.self_id === profile.id ? conversation.other_user_name : 'You'}
+                                </strong>
+                                {': '}
+                                {lastMessages[conversation.id].last_message.content}
+                            </>
+                            : 'No messages'}
+                    </p>
                   </div>
-                    <p>{
-                      new Date(lastMessages[conversation.id]?.last_message.created_at).toLocaleString('en-US', {
-                        month: 'long', 
-                        day: 'numeric', 
-                        hour: 'numeric', 
-                        minute: 'numeric'
-                      })
-                    }</p>
+                  <p>
+                  {lastMessages[conversation.id]?.last_message ? 
+                    new Date(lastMessages[conversation.id].last_message.created_at).toLocaleString('en-US', {
+                      month: 'long', 
+                      day: 'numeric', 
+                      hour: 'numeric', 
+                      minute: 'numeric'
+                    }) 
+                    : 'No messages'}
+                </p>
                 </div>
               );
             })

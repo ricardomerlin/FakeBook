@@ -24,6 +24,8 @@ function App() {
       checkSession();
     }, []);
 
+    console.log(creatingProfile)
+
     const checkSession = async () => {
       console.log('I am checking session')
       const response = await fetch('/api/check_session');
@@ -97,7 +99,7 @@ function App() {
       }
   };
 
-    const checkCreatingProfile = async (value) => {
+    const checkCreatingProfile = (value) => {
         setCreatingProfile(value);
     }
 

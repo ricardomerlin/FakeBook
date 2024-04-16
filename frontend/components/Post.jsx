@@ -73,6 +73,8 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
         }
     }
 
+    console.log(allComments)
+
     const handleUnlike = () => {
         fetchLikes();
         if (userLike && userLike.profile_id === profile.id) {
@@ -109,6 +111,7 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
                 content: newComment,
                 created_at: new Date().toISOString(),
                 name: profile.name,
+                profile_id: profile.id,
                 profile_picture: profile.profile_picture
             })
         });
@@ -129,7 +132,9 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
     };
 
     const handleOpenOtherUser = (userId) => {
-        console.log('Opening other user...')
+        if (userId === profile.id) {
+            return;
+        }
         setOtherUserId(userId);
     };
 
@@ -195,7 +200,7 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
                     </div>
                 ) : (
                     comments.slice(0, 3).map((comment, index) => (
-                        <p key={index} className='comment'><strong>{comment.name} </strong>{comment.content}</p>
+                        <a key={index} className='comment'><a href='#' style={{color: 'black', marginRight: '10px'}}><strong onClick={() => handleOpenOtherUser(comment.profile_id)}>{comment.name}</strong></a>{comment.content}</a>
                     ))
                 )}
                 <form onSubmit={handleNewCommentSubmit} className='submit-comment-feed'>

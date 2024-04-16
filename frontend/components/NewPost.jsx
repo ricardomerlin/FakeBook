@@ -5,16 +5,16 @@ function NewPost({ profile }) {
     const [content, setContent] = useState('');
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
-    const [remainingChars, setRemainingChars] = useState(50);
+    const [remainingChars, setRemainingChars] = useState(100);
     
     console.log(image)
 
     const navigate = useNavigate();
 
     const handleContentChange = (e) => {
-        if (e.target.value.length <= 50) {
+        if (e.target.value.length <= 100) {
             setContent(e.target.value);
-            setRemainingChars(50 - e.target.value.length);
+            setRemainingChars(100 - e.target.value.length);
         }
     };
 
@@ -68,24 +68,25 @@ function NewPost({ profile }) {
         <div className="new-post-container">
             <form onSubmit={handleSubmit} className="new-post-form" encType="multipart/form-data">
                 <h2>Create new post</h2>
-                Share your thoughts:
-                <label>
-                    <textarea className="new-post-input" value={content} onChange={handleContentChange} required />
-                </label>
-                <p style={{paddingTop:'0'}}>Characters remaining: {remainingChars}</p>
-                Attach your image:
-                <label style={{display:'flex', alignItems:'center'}}>
-                    <input type="file" accept="image/*" onChange={handleImageChange} />
-                </label>
-                {previewImage ? (
-                    <img src={previewImage} alt="Preview" style={{width: '200px', marginTop: '20px', borderRadius: '20px'}}/>
-                ) : (
-                    <div style={{width: '200px', height: '200px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '20px'}}>
-                        Preview image here!
-                    </div>
-                )}     
-                <button type="submit" className="new-post-button">POST</button>           
-                <button type="button" onClick={handleClose} className="close-button">Close Create Post</button>
+                <div className="form-group">
+                    <label htmlFor="content">Share your thoughts:</label>
+                    <textarea id="content" className="new-post-input" value={content} onChange={handleContentChange} required />
+                    <p className="char-count">Characters remaining: {remainingChars}</p>
+                    <label htmlFor="image" className='custom-file-upload'>Attach your image here
+                        <input type="file" id="image" accept="image/*" onChange={handleImageChange} style={{display: 'none'}}/>
+                    </label>
+                </div>
+                <div className="preview-container">
+                    {previewImage ? (
+                        <img src={previewImage} alt="Preview" className="preview-image" />
+                    ) : (
+                        <div className="no-preview">Preview image here!</div>
+                    )}
+                </div>
+                <div className="form-group">
+                    <button type="submit" className="new-post-button">POST</button>           
+                    <button type="button" onClick={handleClose} className="close-button">Close Create Post</button>
+                </div>
             </form>
         </div>
     );
