@@ -30,7 +30,7 @@ function Conversations({ profile, allMessages, fetchAllMessages }) {
   }, [searchedFriend]);
 
   useEffect(() => {
-    if (selectedConversation) {
+    if (selectedConversation && allMessages) {
       filterMessages(selectedConversation.id);
     }
   }, [selectedConversation, allMessages]);
@@ -85,7 +85,6 @@ function Conversations({ profile, allMessages, fetchAllMessages }) {
     const messages = allMessages.filter(message => message.conversation_id === conversationId);
     setUserMessages(messages);
   }
-
 
   const newMessage = () => {
     setInitiatingConvo(true);
@@ -185,8 +184,10 @@ function Conversations({ profile, allMessages, fetchAllMessages }) {
     });
     if (response.ok) {
       getConvos();
-      getMessages(selectedConversation.id);
+      // getMessages(selectedConversation.id);
       setMessageInput("");
+      getAllMessagesFromApp();
+      filterMessages(selectedConversation.id);
     } else {
       console.error('Failed to send message');
     }

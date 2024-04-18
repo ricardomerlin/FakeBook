@@ -12,10 +12,10 @@ function FriendsList({ profile, allUsers, friends, getFriends }) {
   console.log(filteredUsers)
 
   useEffect(() => {
-    getFriendRequests();
     if (friends.length === 0) {
       getFriendsFromApp();
     }
+    getFriendRequests();
   }, []);
 
   const handleSearch = (e) => {

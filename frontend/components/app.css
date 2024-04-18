@@ -124,6 +124,12 @@ object-fit: cover;
 font-size: 1.2em;
 color: #333;
 margin: 25px 0;
+margin-left: 15%;
+margin-right: 15%;
+}
+
+.profile-username {
+    font-size: 1.5em;
 }
 
 .profile-bio {
@@ -143,7 +149,7 @@ background-color: rgb(86, 124, 196);
 }
 
 .dog-image {
-width: 100%;
+width: 70%;
 max-width: 500px;
 margin: 20px auto;
 display: block;

@@ -3,7 +3,7 @@ import Post from './Post';
 import { useNavigate } from 'react-router-dom';
 
 function Feed({ profile, fetchComments, comments, posts, fetchPosts, checkLoading, allComments, handlePostAndComments }) {
-    const [loadingMessage, setLoadingMessage] = useState('Loading...');
+    const [loadingMessage, setLoadingMessage] = useState('Loading..');
 
     const navigate = useNavigate();
 
@@ -11,6 +11,14 @@ function Feed({ profile, fetchComments, comments, posts, fetchPosts, checkLoadin
         fetchComments();
         getPostsFromApp();
         document.body.style.overflow = 'auto';
+    }, []);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setLoadingMessage(prevMessage => prevMessage === 'Loading..' ? 'Loading...' : 'Loading..');
+        }, 1000);
+
+        return () => clearInterval(interval);
     }, []);
 
     const getPostsFromApp = async () => {
@@ -21,8 +29,6 @@ function Feed({ profile, fetchComments, comments, posts, fetchPosts, checkLoadin
         navigate('/new-post');
     };
 
-
-
     return (
         <div>
             <div className='feed-background'></div>
@@ -32,7 +38,8 @@ function Feed({ profile, fetchComments, comments, posts, fetchPosts, checkLoadin
                 <div className='posts-container'>
                     {posts.length === 0 ? (
                         <div className="empty-feed">
-                            <h2>Be the first to post some of your favorite images!</h2>
+                            <h1 style={{fontSize: '30px', marginBottom: '30px'}}>{loadingMessage}</h1>
+                            <h2>Post your favorite images!</h2>
                             <p>Share your thoughts, ideas, and moments with the world.</p>
                             <img className='dog-image' src='https://static8.depositphotos.com/1252474/957/i/450/depositphotos_9578561-stock-photo-dog-on-black-background.jpg' alt="raccoon in sunglasses" />
                             <p>Hit the 'New Post' button whenever you are ready!</p>

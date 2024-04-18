@@ -151,6 +151,7 @@ function App() {
     setAllMessages(data);
   }
 
+
   return (
     <Router>
       {profile ? (
@@ -165,11 +166,11 @@ function App() {
           <Routes>
             <Route path="/" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} handlePostAndComments={handlePostAndComments}/>} />
             <Route path="/profile" element={<Profile profile={profile} />} />
-            <Route path="/feed" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} posts={posts} fetchPosts={fetchPosts} allMessages={allMessages} fetchAllMessages={fetchAllMessages} handlePostAndComments={handlePostAndComments}/>} />
+            <Route path="/feed" element={<Feed profile={profile} fetchComments={fetchComments} comments={comments} allComments={allComments} posts={posts} fetchPosts={fetchPosts} fetchAllMessages={fetchAllMessages} handlePostAndComments={handlePostAndComments}/>} />
             <Route path="/friends-list" element={<FriendsList profile={profile} friends={friends} allUsers={allUsers} getFriends={fetchFriends}/>} />
             <Route path='/new-post' element={<NewPost profile={profile}/>} />
             <Route path='/extended-comments' element={<ExtendedComments profile={profile} comments={comments} post={post}/>} />
-            <Route path='/conversations' element={<Conversations profile={profile} />} />
+            <Route path='/conversations' element={<Conversations profile={profile} allMessages={allMessages} fetchAllMessages={fetchAllMessages}/>} />
           </Routes>
         </>
       ) : (

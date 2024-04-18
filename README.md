@@ -4,8 +4,6 @@
   <img src="./frontend/images/FakeBook_logo.png" alt="fakebook_logo" />
 </div>
 
-## FakeBook
-
 FakeBook is a social media platform where users can share posts, interact with other users profile, and communicate with other users. Each user has their own account that they access through username and password authentication.
 
 ## Prerequisites
