@@ -18,7 +18,7 @@ You must have Node.js and npm installed on your machine.
 
 3. Cd into frontend and run `npm install`.
 
-4. Travel back to the FakeBook repository and cd into backend, and then server.
+4. Travel back to the FakeBook directory and cd into backend, and then server.
 
 3. Run `pipenv install` to install all dependencies.
 
@@ -27,6 +27,6 @@ You must have Node.js and npm installed on your machine.
 Open up two seperate terminals:
 
 * In the first one, cd into frontend and run `npm run dev` to run the frontend server.
-* In the second one, run pipenv shell.  Cd into backend, and then server, and then run `python app.py` to run the backend.
+* In the second one, cd into backend, and then server. Run `pipenv shell`, and then run `python app.py` to run the backend server.
 
-## Enjoy your time on FakeBook!
+## Enjoy FakeBook!
