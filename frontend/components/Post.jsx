@@ -73,8 +73,6 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
         }
     }
 
-    console.log(allComments)
-
     const handleUnlike = () => {
         fetchLikes();
         if (userLike && userLike.profile_id === profile.id) {

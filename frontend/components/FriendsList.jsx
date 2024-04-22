@@ -39,7 +39,7 @@ function FriendsList({ profile, allUsers, friends, getFriends }) {
     const data = await response.json();
     let requests = [];
     for (let i = 0; i < data.length; i++) {
-      if (data[i].recipient_id === profile.id && data[i].accepted === false) {
+      if (data[i].receiver_id === profile.id && data[i].accepted === false) {
         console.log(data[i])
         requests.push(data[i]);
       }
@@ -95,7 +95,7 @@ function FriendsList({ profile, allUsers, friends, getFriends }) {
 const mappedFriendRequests = newRequests.map((request) => {
   return (
     <div key={request.id} className='friend-request'>
-      <h3 onClick={() => handleOpenOtherUser(request.self_id === profile.id ? request.other_user_id : request.self_id)}>{request.sender_name}</h3>
+      <h3 onClick={() => handleOpenOtherUser(request.sender_id === profile.id ? request.other_user_id : request.sender_id)}>{request.sender_name}</h3>
       <div className='friend-request-actions'>
         <a href='#' className='accept-button' onClick={() => acceptFriendRequest(request)}>Accept</a>
         <a href='#' className='decline-button' onClick={() => declineFriendRequest(request)}>Decline</a>
@@ -117,15 +117,15 @@ const mappedFriendRequests = newRequests.map((request) => {
       <div key={friend.id} className='friend'>
       <img 
         src={
-          ((friend.self_id === profile.id) ? friend.recipient_profile_picture : friend.self_profile_picture) 
-          ? `data:image/jpeg;base64,${friend.self_id === profile.id ? friend.recipient_profile_picture : friend.self_profile_picture}` 
+          ((friend.sender_id === profile.id) ? friend.receiver_profile_picture : friend.sender_profile_picture) 
+          ? `data:image/jpeg;base64,${friend.sender_id === profile.id ? friend.receiver_profile_picture : friend.sender_profile_picture}` 
           : 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_640.png'
         } 
         alt='profile picture' 
         className='friend-profile-picture-friends-tab'
       />
       <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
-        <h2 className='friend-name-header' onClick={() => handleOpenOtherUser(friend.self_id === profile.id ? friend.other_user_id : friend.self_id)}>{friend.self_id === profile.id ? friend.recipient_name : friend.sender_name}</h2>
+        <h2 className='friend-name-header' onClick={() => handleOpenOtherUser(friend.sender_id === profile.id ? friend.other_user_id : friend.sender_id)}>{friend.sender_id === profile.id ? friend.receiver_name : friend.sender_name}</h2>
         <p>Friends since {reformatCreatedAt(friend.added_at)}</p>
       </div>
         <a href='#' onClick={() => deleteFriend(friend)}>Remove friend</a>
@@ -146,7 +146,7 @@ const mappedFriendRequests = newRequests.map((request) => {
 
   const mappedFilteredUsers = filteredUsers.map(user => (
     <div key={user.id} className='friend-request'>
-      <h3 onClick={() => handleOpenOtherUser(user.sender_id === profile.id ? user.recipient_id : user.sender_id)}>{user.sender_name}</h3>
+      <h3 onClick={() => handleOpenOtherUser(user.sender_id === profile.id ? user.receiver_id : user.sender_id)}>{user.sender_name}</h3>
       <div className='friend-request-actions'>
       <div key={friend.id} className="dropdown-item" onClick={() => startConversation(friendName, friend.id)}>
               <img src={`data:image/jpeg;base64,${friendPfp}`} alt="Profile" className="friend-profile-picture" />

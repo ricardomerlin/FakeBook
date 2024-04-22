@@ -19,18 +19,18 @@ class Friendship(db.Model, SerializerMixin):
     added_at = db.Column(db.DateTime, default=datetime.now)
     accepted = db.Column(db.Boolean, default=False)
     sender_name = db.Column(db.String(100), nullable=False)
-    recipient_name = db.Column(db.String(100), nullable=False)
+    receiver_name = db.Column(db.String(100), nullable=False)
 
-    self_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
-    recipient_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
 
-    self_profile_picture = db.Column(db.String(500), nullable=True)
-    recipient_profile_picture = db.Column(db.String(500), nullable=True)
+    sender_profile_picture = db.Column(db.String(500), nullable=True)
+    receiver_profile_picture = db.Column(db.String(500), nullable=True)
 
-    sender = db.relationship('Profile', foreign_keys=[self_id], backref='friends')
-    recipient = db.relationship('Profile', foreign_keys=[recipient_id], backref='friend_of')
+    sender = db.relationship('Profile', foreign_keys=[sender_id], backref='friends')
+    receiver = db.relationship('Profile', foreign_keys=[receiver_id], backref='friend_of')
 
-    serialize_rules = ('-sender', '-recipient')
+    serialize_rules = ('-sender', '-receiver')
     
     def __repr__(self):
         return f'<Friendship {self.id}>'
@@ -41,16 +41,16 @@ class Conversation(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
 
-    self_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
     other_user_id = db.Column(db.Integer, db.ForeignKey('profile_table.id'), nullable=False)
 
-    self_name = db.Column(db.String(100), nullable=False)
+    sender_name = db.Column(db.String(100), nullable=False)
     other_user_name = db.Column(db.String(100), nullable=False)
 
-    self_profile_picture = db.Column(db.String(500), nullable=True)
+    sender_profile_picture = db.Column(db.String(500), nullable=True)
     other_user_profile_picture = db.Column(db.String(500), nullable=True)
 
-    user1 = db.relationship('Profile', foreign_keys=[self_id], backref='user1_conversations')
+    user1 = db.relationship('Profile', foreign_keys=[sender_id], backref='user1_conversations')
     user2 = db.relationship('Profile', foreign_keys=[other_user_id], backref='user2_conversations')
 
     messages = db.relationship('Message', back_populates='conversation', cascade='all, delete-orphan')
@@ -59,8 +59,6 @@ class Conversation(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<Conversation {self.id}>'
-    
-    # On send, I should also submit a patch request to update the last message in the conversation. IMPLEMENT EVENTUALLY.
 
 class Message(db.Model, SerializerMixin):
     __tablename__ = 'message_table'
@@ -97,6 +95,9 @@ class Profile(db.Model, SerializerMixin):
     posts = db.relationship('Post', back_populates='profile', cascade='all, delete-orphan')
     comments = db.relationship('Comment', back_populates='profile', cascade='all, delete-orphan')
     likes = db.relationship('Like', back_populates='profile', cascade='all, delete-orphan')
+
+    sent_friend_requests = db.relationship('Friendship', foreign_keys=[Friendship.sender_id], backref='sender_profile', cascade='all, delete-orphan')
+    received_friend_requests = db.relationship('Friendship', foreign_keys=[Friendship.receiver_id], backref='receiver_profile', cascade='all, delete-orphan')
 
     serialize_rules = ('-posts', '-comments', '-likes', '-sent_messages', '-received_messages', '-friends', '-friend_of')
 

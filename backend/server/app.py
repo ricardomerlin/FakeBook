@@ -213,18 +213,18 @@ def create_conversation():
     try:
         data = request.get_json()
         existing_conversation = Conversation.query.filter_by(
-            self_id=data.get('user1_id'),
+            sender_id=data.get('user1_id'),
             other_user_id=data.get('user2_id')
         ).first()
         if existing_conversation:
             print('Conversation already exists')
             return jsonify({'error': 'A conversation already exists between these two users'}), 400
         new_conversation = Conversation(
-            self_id=data.get('user1_id'),
+            sender_id=data.get('user1_id'),
             other_user_id=data.get('user2_id'),
-            self_name=data.get('user1_name'),
+            sender_name=data.get('user1_name'),
             other_user_name=data.get('user2_name'),
-            self_profile_picture=data.get('user1_profile_picture'),
+            sender_profile_picture=data.get('user1_profile_picture'),
             other_user_profile_picture=data.get('user2_profile_picture')
         )
         db.session.add(new_conversation)
@@ -254,18 +254,18 @@ def create_friendship():
     try:
         data = request.get_json()
         existing_friendship = Friendship.query.filter_by(
-            self_id=data.get('self_id'),
-            recipient_id=data.get('recipient_id')
+            sender_id=data.get('sender_id'),
+            receiver_id=data.get('receiver_id')
         ).first()
         if existing_friendship:
             return jsonify({'error': 'A friendship already exists between these two users'}), 400
         new_friendship = Friendship(
             sender_name=data.get('sender_name'),
-            recipient_name=data.get('recipient_name'),
-            self_id=data.get('self_id'),
-            recipient_id=data.get('recipient_id'),
-            self_profile_picture=data.get('self_profile_picture'),
-            recipient_profile_picture=data.get('recipient_profile_picture')
+            receiver_name=data.get('receiver_name'),
+            sender_id=data.get('sender_id'),
+            receiver_id=data.get('receiver_id'),
+            sender_profile_picture=data.get('sender_profile_picture'),
+            receiver_profile_picture=data.get('receiver_profile_picture')
         )
         db.session.add(new_friendship)
         db.session.commit()
@@ -321,10 +321,10 @@ def delete_comment(id):
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-@app.delete('/api/friends/<int:self_id>/<int:recipient_id>')
-def delete_friendship_after_send(self_id, recipient_id):
+@app.delete('/api/friends/<int:sender_id>/<int:receiver_id>')
+def delete_friendship_after_send(sender_id, receiver_id):
     try:
-        friendship = Friendship.query.filter_by(self_id=self_id, recipient_id=recipient_id).first()
+        friendship = Friendship.query.filter_by(sender_id=sender_id, receiver_id=receiver_id).first()
         if not friendship:
             return jsonify({'error': 'Friendship not found'}), 404
         db.session.delete(friendship)

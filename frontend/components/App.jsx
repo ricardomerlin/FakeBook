@@ -32,7 +32,7 @@ function App() {
       fetchAllUsers();
     }, []);
 
-    console.log(friends)
+    console.log(profile)
   
     useEffect(() => {
       if (profId) {
@@ -123,7 +123,7 @@ function App() {
       const data = await response.json();
       let friends = [];
       for (let i = 0; i < data.length; i++) {
-        if ((data[i].self_id === profile.id || data[i].recipient_id === profile.id) && data[i].accepted === true) {        
+        if ((data[i].sender_id === profile.id || data[i].receiver_id === profile.id) && data[i].accepted === true) {        
           friends.push(data[i]);
         }
       }

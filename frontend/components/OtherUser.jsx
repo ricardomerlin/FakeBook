@@ -5,9 +5,6 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
   const [otherUser, setOtherUser] = useState(null);
   const [requestStatus, setRequestStatus] = useState(0);
 
-  console.log(otherUserId)
-  console.log(profile)
-
   useEffect(() => {
     if (otherUserId) fetchOtherUser()
   }, [otherUserId])
@@ -32,7 +29,7 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
   const addFriend = async () => {
     const getFriends = await fetch(`/api/friends`);
     const friends = await getFriends.json();
-    if (friends.some(friendship => friendship.self_id === profile.id && friendship.recipient_id === otherUser.id && (friendship.accepted === false || friendship.accepted === true))) {
+    if (friends.some(friendship => friendship.sender_id === profile.id && friendship.receiver_id === otherUser.id && (friendship.accepted === false || friendship.accepted === true))) {
       return;
     }
     const response = await fetch(`/api/friends`, {
@@ -42,11 +39,11 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
       },
       body: JSON.stringify({
         sender_name: profile.name,
-        recipient_name: otherUser.name,
-        self_id: profile.id,
-        recipient_id: otherUser.id,
-        self_profile_picture: profile.profile_picture,
-        recipient_profile_picture: otherUser.profile_picture
+        receiver_name: otherUser.name,
+        sender_id: profile.id,
+        receiver_id: otherUser.id,
+        sender_profile_picture: profile.profile_picture,
+        receiver_profile_picture: otherUser.profile_picture
       }),
     });
     if (response.ok) {
@@ -65,11 +62,11 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
   const checkFriends = async () => {
     const response = await fetch(`/api/friends`);
     const data = await response.json();
-    if (data.some(friendship => friendship.self_id === profile.id && friendship.recipient_id === otherUser.id && friendship.accepted === false)) {
+    if (data.some(friendship => friendship.sender_id === profile.id && friendship.receiver_id === otherUser.id && friendship.accepted === false)) {
       setRequestStatus(1);
-    } else if (data.some(friendship => friendship.self_id === otherUser.id && friendship.recipient_id === profile.id && friendship.accepted === false)) {
+    } else if (data.some(friendship => friendship.sender_id === otherUser.id && friendship.receiver_id === profile.id && friendship.accepted === false)) {
       setRequestStatus(2);
-    } else if (data.some(friendship => ( friendship.self_id === profile.id && friendship.recipient_id === otherUser.id || friendship.self_id == otherUser.id && friendship.recipient_id == profile.id ) && friendship.accepted === true)) {
+    } else if (data.some(friendship => ( friendship.sender_id === profile.id && friendship.receiver_id === otherUser.id || friendship.sender_id == otherUser.id && friendship.receiver_id == profile.id ) && friendship.accepted === true)) {
       setRequestStatus(3);
     } else {
       setRequestStatus(0);
