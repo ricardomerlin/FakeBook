@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function NewPost({ profile }) {
+function NewPost({ profile, fetchAllPosts }) {
     const [content, setContent] = useState('');
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     const [remainingChars, setRemainingChars] = useState(100);
     
-    console.log(image)
-
     const navigate = useNavigate();
 
     const handleContentChange = (e) => {
@@ -27,13 +25,6 @@ function NewPost({ profile }) {
         formData.append('image', image);
         formData.append('profile_id', profile.id);
         formData.append('profile_picture', profile.profile_picture);
-        console.log('Submitting new post...')
-
-        console.log(formData.get('content'))
-        console.log(formData.get('image'))
-        console.log(formData.get('profile_id'))
-        console.log(formData.get('profile_picture'))
-        console.log(formData.get('name'))
 
         const response = await fetch('/api/posts', {
             method: 'POST',
@@ -43,6 +34,7 @@ function NewPost({ profile }) {
             const newPost = await response.json();
             setContent('');
             setImage(null);
+            fetchAllPosts();
             handleClose();
         } else {
             console.error('Failed to create post');

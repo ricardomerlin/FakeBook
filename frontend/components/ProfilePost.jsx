@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal'
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 
-function ProfilePost({ post, profile, fetchPosts }) {
+function ProfilePost({ post, profile }) {
     const [likes, setLikes] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [liked, setLiked] = useState(false);
@@ -14,8 +14,7 @@ function ProfilePost({ post, profile, fetchPosts }) {
     
     useEffect(() => {
         fetchLikes();
-        fetchComments();
-        fetchPosts()
+        fetchAllComments();
     }, []);
     
     useEffect(() => {
@@ -34,7 +33,7 @@ function ProfilePost({ post, profile, fetchPosts }) {
         }
     };
 
-    const fetchComments = async () => {
+    const fetchAllComments = async () => {
         const response = await fetch(`/api/comments`);
         const data = await response.json();
         const postComments = data.filter(comment => comment.post_id === post.id);
@@ -59,7 +58,8 @@ function ProfilePost({ post, profile, fetchPosts }) {
             setLikes(likes + 1);
             setLiked(true);
             setUserLike(data);
-        })}
+        })
+    }
 
 
     function handleUnlike() {
@@ -70,13 +70,12 @@ function ProfilePost({ post, profile, fetchPosts }) {
             })
             .then((response) => response.json())
             .then((data) => {
-                console.log('Unliked post');
                 setLikes(likes - 1);
                 setLiked(false);
                 setUserLike(null);
             })
     } else {
-        console.log('You can only delete your own likes')
+        return
     }}
 
     const handleOpenModal = () => {
@@ -121,8 +120,7 @@ function ProfilePost({ post, profile, fetchPosts }) {
         });
     
         if (response.ok) {
-            console.log('Post deleted successfully');
-            fetchPosts();
+            fetchAllPosts();
         } else {
             console.error('Failed to delete post');
         }
@@ -136,7 +134,7 @@ function ProfilePost({ post, profile, fetchPosts }) {
         });
         if (response.ok) {
             console.log('Comment deleted successfully');
-            fetchComments();
+            fetchAllComments();
         } else {
             console.error('Failed to delete comment');
         }

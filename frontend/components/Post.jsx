@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import OtherUser from './OtherUser';
 
-function Post({ post, profile, allComments, fetchPosts, handlePostAndComments }) {
+function Post({ post, profile, allComments, fetchAllPosts, handlePostAndComments }) {
     const [likes, setLikes] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [liked, setLiked] = useState(false);
@@ -19,7 +19,7 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
 
     useEffect(() => {
         fetchLikes();        
-        fetchComments(allComments);
+        fetchAllComments(allComments);
 
         const checkScroll = () => {
             setIsTop(window.pageYOffset === 0);
@@ -46,7 +46,7 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
         }
     };
     
-    const fetchComments = async (allComments) => {
+    const fetchAllComments = async (allComments) => {
         const postComments = allComments.filter(comment => comment.post_id === post.id);
         setComments(postComments);
     };
@@ -149,7 +149,7 @@ function Post({ post, profile, allComments, fetchPosts, handlePostAndComments })
     
         if (response.ok) {
             console.log('Post deleted successfully');
-            fetchPosts();
+            fetchAllPosts();
         } else {
             console.error('Failed to delete post');
         }

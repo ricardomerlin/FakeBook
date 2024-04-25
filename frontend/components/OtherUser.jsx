@@ -15,16 +15,16 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
     }
   }, [otherUser])
 
-  const reformatBirthday = (birthday) => {
-    const date = new Date(birthday);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  }
-  
   //requestStatus: 
   // 0 = no request sent
   // 1 = request sent by current user
   // 2 = request received by current user
   // 3 = friends
+
+  const reformatBirthday = (birthday) => {
+    const date = new Date(birthday);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
   
   const addFriend = async () => {
     const getFriends = await fetch(`/api/friends`);
@@ -96,7 +96,6 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
     }
   };
   
-
   return (
     <>
       {isOpen && (
@@ -108,11 +107,11 @@ function OtherUser({ profile, isOpen, onClose, otherUserId }) {
           <div className="profile-content">
             <img className="profile-avatar" src={`data:image/jpeg;base64,${otherUser.profile_picture}`} alt="user avatar" />
             <p className='profile-birthday'>Born on {reformatBirthday(otherUser.birthday)}</p>
-            <p className="profile-email">Email Address: {otherUser.email}</p>
+            <p className="profile-email">Email: {otherUser.email}</p>
             <p className="profile-bio">{otherUser.description}</p>
-            {requestStatus == 1 ? <h3>Friend request sent! <button onClick={removeFriend}>Unsend</button></h3> : requestStatus == 0 ? <button className='friend-request' onClick={addFriend}>Send Friend Request</button> : requestStatus == 3 ? <h3>You and {otherUser.name} are already friends.</h3> : <h3>{otherUser.name} sent you a friend request! Check your requests!</h3>}
+            {requestStatus == 1 ? <h3 style={{marginBottom: '-2px'}}>Friend request sent! <button onClick={removeFriend}>Unsend?</button></h3> : requestStatus == 0 ? <button className='friend-request' onClick={addFriend}>Send Friend Request</button> : requestStatus == 3 ? <h3>You and {otherUser.name} are already friends.</h3> : <h3>{otherUser.name} sent you a friend request! Check your requests!</h3>}
           </div>
-          <button className='close-other-user' onClick={onClose} style={{marginTop: '10px', fontSize: '15px', borderRadius: '10px', backgroundColor: ''}}>Close</button>
+          <button className='close-other-user' onClick={onClose}>Close</button>
         </div>
       </div>
       )}

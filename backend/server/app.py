@@ -267,6 +267,7 @@ def create_friendship():
             sender_profile_picture=data.get('sender_profile_picture'),
             receiver_profile_picture=data.get('receiver_profile_picture')
         )
+        print(new_friendship)
         db.session.add(new_friendship)
         db.session.commit()
         return jsonify(new_friendship.to_dict(rules = ['-profile.friends', '-friend.friends'])), 201

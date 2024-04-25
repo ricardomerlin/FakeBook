@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import Post from './Post';
 import { useNavigate } from 'react-router-dom';
 
-function Feed({ profile, fetchComments, comments, posts, fetchPosts, checkLoading, allComments, handlePostAndComments }) {
+function Feed({ profile, fetchAllComments, fetchAllPosts, posts, allComments, handlePostAndComments }) {
     const [loadingMessage, setLoadingMessage] = useState('Loading..');
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchComments();
-        getPostsFromApp();
+        fetchAllComments();
         document.body.style.overflow = 'auto';
     }, []);
 
@@ -20,10 +19,6 @@ function Feed({ profile, fetchComments, comments, posts, fetchPosts, checkLoadin
 
         return () => clearInterval(interval);
     }, []);
-
-    const getPostsFromApp = async () => {
-        fetchPosts();
-    }
 
     const travelNewPost = () => {
         navigate('/new-post');
@@ -36,7 +31,7 @@ function Feed({ profile, fetchComments, comments, posts, fetchPosts, checkLoadin
                 <h1 className='feed-header'>Main Feed</h1>
                 <button className="floating-button" onClick={travelNewPost}>New Post</button>
                 <div className='posts-container'>
-                    {posts.length === 0 ? (
+                    {posts && posts.length === 0 ? (
                         <div className="empty-feed">
                             <h1 style={{fontSize: '30px', marginBottom: '30px'}}>{loadingMessage}</h1>
                             <h2>Post your favorite images!</h2>
@@ -46,7 +41,7 @@ function Feed({ profile, fetchComments, comments, posts, fetchPosts, checkLoadin
                         </div>
                     ) : (
                         posts.map(post => (
-                            <Post key={post.id} profile={profile} post={post} allComments={allComments} fetchPosts={fetchPosts} handlePostAndComments={handlePostAndComments}/>
+                            <Post key={post.id} profile={profile} post={post} allComments={allComments} fetchAllPosts={fetchAllPosts} handlePostAndComments={handlePostAndComments}/>
                         ))
                     )}
                 </div>

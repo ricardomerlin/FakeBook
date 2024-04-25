@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import OtherUser from './OtherUser';
 
-function FriendsList({ profile, allUsers, friends, getFriends }) {
+function FriendsList({ profile, allUsers, friends }) {
   const [newRequests, setNewRequests] = useState([]);
+  const [tempFriends, setTempFriends] = useState([]);
   const [otherUserId, setOtherUserId] = useState(0);
   const [friendSearch, setFriendSearch] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
-  
-  console.log(allUsers)
-  console.log(friendSearch)
-  console.log(filteredUsers)
 
   useEffect(() => {
-    if (friends.length === 0) {
-      getFriendsFromApp();
-    }
     getFriendRequests();
   }, []);
+
+  const reformatCreatedAt = (date) => {
+    const dateObj = new Date(date);
+    const month = dateObj.toLocaleString('default', { month: 'long' });
+    const day = dateObj.getDate();
+    const year = dateObj.getFullYear();
+    return `${month} ${day}, ${year}`;
+  }
 
   const handleSearch = (e) => {
     if (friendSearch === '') {
@@ -32,44 +34,46 @@ function FriendsList({ profile, allUsers, friends, getFriends }) {
     });
     setFilteredUsers(filteredUsers);
   }
-  
-  
+
   const getFriendRequests = async () => {
-    const response = await fetch('/api/friends');
-    const data = await response.json();
-    let requests = [];
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].receiver_id === profile.id && data[i].accepted === false) {
-        console.log(data[i])
-        requests.push(data[i]);
-      }
-    }
-    setNewRequests(requests);
-    console.log('done')
+    const incomingRequests = profile.received_friend_requests.filter(request => request.accepted === false);
+    setNewRequests(incomingRequests);
   }
-  
+
   const acceptFriendRequest = async (request) => {
+    const acceptedAt = new Date().toISOString();
+
     const response = await fetch(`/api/friends/${request.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        accepted: true
+        accepted: true,
+        accepted_at: acceptedAt
       })
     });
+    
     if (response.ok) {
-      getFriendRequests();
-      getFriendsFromApp();
+      const newFriend = {
+        id: request.id,
+        sender_id: request.sender_id,
+        receiver_id: request.receiver_id,
+        sender_name: request.sender_name,
+        receiver_name: request.receiver_name,
+        sender_profile_picture: request.sender_profile_picture,
+        receiver_profile_picture: request.receiver_profile_picture,
+        added_at: request.added_at,
+        accepted: true,
+        accepted_at: acceptedAt
+      };
+      setTempFriends(tempFriends.length > 0 ? [...tempFriends, newFriend] : [...friends, newFriend])
+      setNewRequests(prevRequests => prevRequests.filter(req => req.id !== request.id));
     } else {
       console.log('Error accepting friend request');
     }
   }
 
-  const getFriendsFromApp = async () => {
-    getFriends()
-  }
-  
   const declineFriendRequest = async (request) => {
     const response = await fetch(`/api/friends/${request.id}`, {
       method: 'DELETE'
@@ -86,33 +90,25 @@ function FriendsList({ profile, allUsers, friends, getFriends }) {
       method: 'DELETE'
     });
     if (response.ok) {
-      getFriendsFromApp();
+      setTempFriends(tempFriends.filter(f => f.id !== friend.id));
     } else {
       console.log('Error deleting friend');
     }
   }
 
-const mappedFriendRequests = newRequests.map((request) => {
-  return (
-    <div key={request.id} className='friend-request'>
-      <h3 onClick={() => handleOpenOtherUser(request.sender_id === profile.id ? request.other_user_id : request.sender_id)}>{request.sender_name}</h3>
-      <div className='friend-request-actions'>
-        <a href='#' className='accept-button' onClick={() => acceptFriendRequest(request)}>Accept</a>
-        <a href='#' className='decline-button' onClick={() => declineFriendRequest(request)}>Decline</a>
+  const mappedFriendRequests = newRequests.map((request) => {
+    return (
+      <div key={request.id} className='friend-request'>
+        <h3 onClick={() => handleOpenOtherUser(request.sender_id === profile.id ? request.other_user_id : request.sender_id)}>{request.sender_name}</h3>
+        <div className='friend-request-actions'>
+          <a href='#' className='accept-button' onClick={() => acceptFriendRequest(request)}>Accept</a>
+          <a href='#' className='decline-button' onClick={() => declineFriendRequest(request)}>Decline</a>
+        </div>
       </div>
-    </div>
-  )
-})
+    )
+  })
 
-  const reformatCreatedAt = (date) => {
-    const dateObj = new Date(date);
-    const month = dateObj.toLocaleString('default', { month: 'long' });
-    const day = dateObj.getDate();
-    const year = dateObj.getFullYear();
-    return `${month} ${day}, ${year}`;
-  }
-
-  const mappedFriends = friends.map((friend) => {
+  const mappedFriends = (tempFriends.length > 0 ? tempFriends : friends).map((friend) => {
     return (
       <div key={friend.id} className='friend'>
       <img 

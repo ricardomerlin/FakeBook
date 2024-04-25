@@ -18,6 +18,7 @@ class Friendship(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     added_at = db.Column(db.DateTime, default=datetime.now)
     accepted = db.Column(db.Boolean, default=False)
+    accepted_at = db.Column(db.DateTime, default=datetime.now)
     sender_name = db.Column(db.String(100), nullable=False)
     receiver_name = db.Column(db.String(100), nullable=False)
 
@@ -27,8 +28,8 @@ class Friendship(db.Model, SerializerMixin):
     sender_profile_picture = db.Column(db.String(500), nullable=True)
     receiver_profile_picture = db.Column(db.String(500), nullable=True)
 
-    sender = db.relationship('Profile', foreign_keys=[sender_id], backref='friends')
-    receiver = db.relationship('Profile', foreign_keys=[receiver_id], backref='friend_of')
+    sender = db.relationship('Profile', foreign_keys=[sender_id], back_populates='sent_friend_requests')
+    receiver = db.relationship('Profile', foreign_keys=[receiver_id], back_populates='received_friend_requests')
 
     serialize_rules = ('-sender', '-receiver')
     
@@ -96,13 +97,14 @@ class Profile(db.Model, SerializerMixin):
     comments = db.relationship('Comment', back_populates='profile', cascade='all, delete-orphan')
     likes = db.relationship('Like', back_populates='profile', cascade='all, delete-orphan')
 
-    sent_friend_requests = db.relationship('Friendship', foreign_keys=[Friendship.sender_id], backref='sender_profile', cascade='all, delete-orphan')
-    received_friend_requests = db.relationship('Friendship', foreign_keys=[Friendship.receiver_id], backref='receiver_profile', cascade='all, delete-orphan')
+    sent_friend_requests = db.relationship('Friendship', foreign_keys="[Friendship.sender_id]", back_populates='sender', cascade='all, delete-orphan')
+    received_friend_requests = db.relationship('Friendship', foreign_keys="[Friendship.receiver_id]", back_populates='receiver', cascade='all, delete-orphan')
 
-    serialize_rules = ('-posts', '-comments', '-likes', '-sent_messages', '-received_messages', '-friends', '-friend_of')
+    serialize_rules = ('-posts', '-comments', '-likes', '-sent_messages', '-received_messages')
 
     def __repr__(self):
         return f'<Profile {self.id}>'
+
 
 class Post(db.Model, SerializerMixin):
     __tablename__ = 'post_table'
